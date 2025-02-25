@@ -1,0 +1,32 @@
+{
+  "name": "playwright-json-runner",
+  "version": "1.0.0",
+  "description": "A Playwright package that runs tests using JSON input",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsup src/index.ts",
+    "start": "node dist/index.js",
+    "dev": "tsup src/index.ts --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "peerDependencies": {
+    "playwright": "^1.50.1"
+  },
+  "bin": {
+    "playwright-json-runner": "./index.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.50.1",
+    "@types/node": "^22.13.5",
+    "ts-node": "^10.9.2",
+    "tsup": "^8.3.6",
+    "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "cosmiconfig": "^9.0.0",
+    "linkedom": "^0.18.9"
+  }
+}
