@@ -300,7 +300,7 @@ projectName/json-tests/github.playwright.json
 }
 ```
 
-## ▶ Running JSON Tests <a id="running-json-tests></a>
+## ▶ Running JSON Tests <a id="running-json-tests"></a>
 
 Once the package is installed and tests are configured, run Playwright as usual:
 ```sh
