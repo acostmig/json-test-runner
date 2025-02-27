@@ -18,7 +18,7 @@
       - default getter strategies [getter-strategies.ts](./packages//playwright-json-runner/src/defaults/getter-strategies.ts)
       - default setter strategies [getter-strategies.ts](./packages//playwright-json-runner/src/defaults/setter-strategies.ts)
 
-- [Writing a JSON Test](#writing-a-json-test)
+- [Writing a JSON Test](#writing-json-test)
   - Example JSON Test: [`json-tests/github.playwright.json`](./tests/playwright-json-runner-tests/json-tests/github.playwright.json)
 - [Running JSON Tests](#running-json-tests)
 - [Features](#features)
