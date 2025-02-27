@@ -1,0 +1,64 @@
+{
+    "driver": "Playwright",
+    "browser": "chrome",
+    "host": "https://www.github.com/",
+    "scenarios": [
+      {
+        "name": "Signup Test",
+        "steps": [
+          {
+            "description": "Navigate to create account",
+            "actions": [
+              {
+                "type": "Click",
+                "identifier": "Sign in",
+                "nth": 1
+              },
+              {
+                "type": "Click",
+                "identifier": "Create an account",
+                "label": "Click on Create an Account"
+              }
+            ]
+          },
+          {
+            "description": "Fill the signup form",
+            "actions": [
+              {
+                "type": "SetFieldValue",
+                "identifier": "email",
+                "value": "playwright-json-runner@automategpt.com"
+              },
+              {
+                "type": "SetFieldValue",
+                "identifier": "password",
+                "value": "Some Password"
+              },
+              {
+                "type": "SetFieldValue",
+                "identifier": "username-container",
+                "value": "miguel_acosta"
+              },
+              {
+                "type": "Click",
+                "identifier": "Continue",
+                "value": "Some Password"
+              }
+            ]
+          },
+          {
+            "description": "Assertions",
+            "actions": [
+              {
+                "type": "assertFieldValueEquals",
+                "identifier": "email",
+                "value": "playwright-json-runner@automategpt.com"
+              }
+            ]
+            
+          }
+        ]
+      }
+    ]
+  }
+  
