@@ -130,3 +130,4 @@ dist
 .pnp.*
 *.playwright.json
 videos/
+test-results/

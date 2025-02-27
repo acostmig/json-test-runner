@@ -1,0 +1,22 @@
+* {
+*    "driver": "Playwright",
+*    "browser": "chrome",
+*    "host": "https://www.github.com/",
+*    "scenarios": [
+*        {
+*            "name": "Signup Test",
+*            "steps": [
+*                {
+*                    "description": "Navigate to create account",
+*                    "actions": [
+*                        {
+*                            "type": "Click",
+*                            "identifier": "Sign in",
+*                            "nth": 1
+*                        }
+*                    ]
+*                }
+*            ]
+*        }
+*     ]
+* }

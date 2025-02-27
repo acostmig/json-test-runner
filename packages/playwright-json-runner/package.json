@@ -2,22 +2,33 @@
   "name": "playwright-json-runner",
   "version": "1.0.0",
   "description": "A Playwright package that runs tests using JSON input",
-  "main": "index.js",
+  "module": "dist/index.js",
   "scripts": {
-    "build": "tsup src/index.ts",
+    "build": "tsup",
+    "build-pack": "tsup && npm pack",
     "start": "node dist/index.js",
-    "dev": "tsup src/index.ts --watch"
+    "dev": "tsup --watch"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
   "peerDependencies": {
     "playwright": "^1.50.1"
   },
-  "bin": {
-    "playwright-json-runner": "./index.js"
+  "exports": {
+    ".": {
+      "import": "./dist/index.js.map",
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./config": "./dist/config.js",
+    "./runner-playwright": "./dist/runner-playwright.js",
+    "./package.json": "./package.json"
   },
+  "files": [
+    "dist"
+  ],
   "devDependencies": {
     "@playwright/test": "^1.50.1",
     "@types/node": "^22.13.5",
@@ -26,7 +37,11 @@
     "typescript": "^5.7.3"
   },
   "dependencies": {
+    "@types/jsdom": "^21.1.7",
     "cosmiconfig": "^9.0.0",
-    "linkedom": "^0.18.9"
+    "glob": "^11.0.1",
+    "jsdom": "^26.0.0",
+    "linkedom": "^0.18.9",
+    "uninstall": "^0.0.0"
   }
 }

@@ -2,42 +2,7 @@ import { chromium, firefox, webkit, Browser, Page, Locator } from "playwright";
 import { error } from "console";
 import { smartLocator } from "./smart-locator";
 import { getConfiguration } from "./config";
-import { ActionType } from "./config";
-
-interface WithLabel {
-  label?: string
-}
-interface WithDescription {
-  description?: string
-}
-interface TestObject extends WithLabel, WithDescription {
-
-}
-// Define test structure types
-export interface TestAction extends TestObject {
-  type: ActionType;
-  selector?: string;
-  identifier?: string;
-  value?: string;
-  url?: string;
-  expectFunction?: string;
-}
-
-export interface TestStep extends TestObject {
-  description: string;
-  actions: TestAction[];
-}
-
-export interface TestScenario extends TestObject {
-  name: string;
-  steps: TestStep[];
-}
-
-export interface TestRun extends TestObject {
-  browser: "chrome" | "firefox" | "webkit";
-  host: string;
-  scenarios: TestScenario[];
-}
+import {TestAction, TestRun } from '.'
 
 export async function runTests(testRun: TestRun): Promise<void> {
   // Select browser
@@ -47,7 +12,7 @@ export async function runTests(testRun: TestRun): Promise<void> {
     webkit: webkit,
   }[testRun.browser] || chromium; // Default to Chromium
 
-  const browser: Browser = await browserType.launch({ headless: false });
+  const browser: Browser = await browserType.launch();
 
   console.log(`🚀 Running tests on ${testRun.host} using ${testRun.browser}`);
 
@@ -99,7 +64,7 @@ export async function runTests(testRun: TestRun): Promise<void> {
 
 
 async function executeAction(locator:Locator, action: TestAction) {
-  const config = await getConfiguration();
+  const config = getConfiguration();
   const handler = Object.entries(config.actionTypeHandlers).find(
     ([key]) => key.toLowerCase() === action.type.toLowerCase()
   )?.[1];

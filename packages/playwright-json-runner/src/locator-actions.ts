@@ -1,26 +1,54 @@
 import { Locator } from "playwright";
-import { parseHTML} from "linkedom";
-import { Configuration } from "./config-default";
-import { getConfiguration } from "./config";
+import { JSDOM } from "jsdom";
+import { Configuration } from "./config";
+import { getConfiguration, RuleMatch } from "./config";
 
 /**
  * Loads the user's Playwright config dynamically if it exists.
  * Falls back to default config if no user config is found.
  */
 
-async function getRuleId(html: string, config: Configuration): Promise<string | null> {
-  const { document } = parseHTML(html);
-  const element = document.firstElementChild;
+
+
+function getRuleMatch(html: string, config: Configuration): RuleMatch | null {
+  const { document } = new JSDOM(html).window;
+  const element = document.body;  
   if (!element) return null;
+  let xpathMatch = undefined;
+  let matchedChild = undefined
+
+  const xpath = (xpath: string) : boolean =>
+  {
+    // XPathResult.FIRST_ORDERED_NODE_TYPE = 9
+      const result = document.evaluate(xpath, document, null, 9, null);
+      const matchedElement = result.singleNodeValue;
+      if(matchedElement) { 
+        xpathMatch = xpath;
+        matchedChild = element.firstElementChild !==matchedElement
+        return true; 
+      }
+  
+      return false
+  }
   
   for (const [id, condition] of Object.entries(config.rules)) {
-    if (condition(element)) {
-      return id;
+    try{
+      if (condition({ document: document, element: element, xpathEval: xpath})) {
+        return {id, xpath: xpathMatch, matchedChild: matchedChild??false} as RuleMatch;
+      }
+    }
+    catch(err:any)
+    {
+      console.error("error executing condition: ", id)
+      throw err;
     }
   }
 
   return null; // No match found
 }
+
+
+
 
 /**
  * Finds the best matching locator and sets its value.
@@ -30,27 +58,25 @@ async function getRuleId(html: string, config: Configuration): Promise<string | 
  */
 export async function setLocatorValue(locator: Locator, value: string|undefined): Promise<void> {
   const html = await locator.evaluate(el => el.outerHTML);
-  const config = await getConfiguration();
-  const tagName = await locator.evaluate((el) => el.tagName.toLowerCase());
+  const config = getConfiguration();
+  const ruleMatch= getRuleMatch(html, config)
 
-  const ruleId = await getRuleId(html, config)
-
-  if (ruleId && config.setterStrategies[ruleId]) {
-    return await config.setterStrategies[tagName](locator, value);
+  if (ruleMatch && config.setterStrategies[ruleMatch.id]) {
+    const targetLocator = ruleMatch.matchedChild && ruleMatch.xpath? locator.locator(ruleMatch.xpath): locator
+    return await config.setterStrategies[ruleMatch.id]({locator: targetLocator, ruleMatch, value});
   }
   
   throw new Error(`❌ Couldn't find a rule match for on element ${locator} \b html: ${html}`);
 }
 
-export async function getFieldValue(locator: Locator, value: string|undefined): Promise<string|null> {
+export async function getLocatorValue(locator: Locator): Promise<string|null> {
   const html = await locator.evaluate(el => el.outerHTML);
-  const config = await getConfiguration();
-  const tagName = await locator.evaluate((el) => el.tagName.toLowerCase());
-
-  const ruleId = await getRuleId(html, config)
-
-  if (ruleId && config.getterStrategies[ruleId]) {
-    return await config.getterStrategies[tagName](locator);
+  const config = getConfiguration();
+  const ruleMatch= getRuleMatch(html, config)
+  
+  if (ruleMatch && config.getterStrategies[ruleMatch.id]) {
+    const targetLocator = ruleMatch.matchedChild && ruleMatch.xpath? locator.locator(ruleMatch.xpath): locator
+    return await config.getterStrategies[ruleMatch.id]({locator: targetLocator, ruleMatch});
   }
   
   throw new Error(`❌ Couldn't find a rule match for on element ${locator} \b html: ${html}`);

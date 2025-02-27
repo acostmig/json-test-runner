@@ -1,24 +1,43 @@
-#!/usr/bin/env node
-import { readFileSync, existsSync } from "fs";
-import path from "path";
-import { runTests, TestRun } from "./runner";
+interface WithLabel {
+  label?: string
+}
+interface WithDescription {
+  description?: string
+}
+interface TestObject extends WithLabel, WithDescription {
 
-// Get the test file from command-line arguments
-const args = process.argv.slice(2);
-const testFile = args[0] || "testrun.playwright.json";
-const testFilePath = path.resolve(process.cwd(), testFile);
+}
+export type ActionType = 'setfieldvalue' | 'click' | 'navigate' | 'expect' | 'assertFieldValueEquals' | 'assertFieldValueContains';
 
-if (!existsSync(testFilePath)) {
-  console.error(`❌ Error: Test file "${testFilePath}" not found.`);
-  process.exit(1);
+
+// Define test structure types
+export interface TestAction extends TestObject {
+  type: ActionType;
+  selector?: string;
+  identifier?: string;
+  value?: string;
+  url?: string;
+  expectFunction?: string;
+  nth: number
 }
 
-const runJson = JSON.parse(readFileSync(testFilePath, "utf-8"));
-const testRun: TestRun = runJson;
+export interface TestStep extends TestObject {
+  description: string;
+  actions: TestAction[];
+}
 
-runTests(testRun)
-  .then(() =>console.log("✅ Tests completed."))
-  .catch((error) => {
-    console.error("❌ Error occurred while running tests:", error);
-    process.exit(1); // Exit with error status code
-  });
+export interface TestScenario extends TestObject {
+  name: string;
+  steps: TestStep[];
+}
+
+export interface TestRun extends TestObject {
+  browser: "chrome" | "firefox" | "webkit";
+  host: string;
+  scenarios: TestScenario[];
+}
+
+export { smartLocator } from "./smart-locator";
+export { getLocatorValue, setLocatorValue } from "./locator-actions";
+export { runTests } from './runner'
+

@@ -1,10 +1,13 @@
 import { defineConfig } from "tsup";
 
 export default defineConfig({
-  entry: ["src/index.ts"],
-  format: ["cjs", "esm"], // Build for commonJS and ESmodules
-  dts: true, // Generate declaration file (.d.ts)
-  splitting: false,
+  entry: ["src/**"],  
+  format: ["cjs", "esm"],
+  dts: {resolve:true}, 
   sourcemap: true,
   clean: true,
+  bundle: true,
+  outDir: "dist",
+  treeshake: true,
+  tsconfig: "tsconfig.json"
 });
