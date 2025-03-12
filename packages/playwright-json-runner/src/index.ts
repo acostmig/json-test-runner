@@ -47,7 +47,7 @@ const testScenarioSchema = testObjectSchema.extend({
 });
 export type TestScenario = z.infer<typeof testScenarioSchema>;
 
-const testRunSchema = testObjectSchema.extend({
+export const testRunSchema = testObjectSchema.extend({
   browser: z.enum(["chrome", "firefox", "webkit"]),
   host: z.string(),
   scenarios: z.array(testScenarioSchema),
@@ -63,5 +63,6 @@ export function dumpSchema()
   const jsonSchema = zodToJsonSchema(testRunSchema, {
       name: "TestRun",
     });
-  console.log(JSON.stringify(jsonSchema, null, 2));
+    // console.log(JSON.stringify(jsonSchema, null, 2));
+    return jsonSchema;
 }

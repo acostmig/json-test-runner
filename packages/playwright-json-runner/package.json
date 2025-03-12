@@ -1,20 +1,33 @@
 {
   "name": "playwright-json-runner",
   "version": "1.0.0",
-  "description": "A Playwright package that runs tests using JSON input",
+  "description": "Extends Playwright to run tests using JSON-based test definitions.",
   "module": "dist/index.js",
   "scripts": {
     "build": "tsup",
     "build-pack": "tsup && npm pack",
     "start": "node dist/index.js",
     "dev": "tsup --watch",
-    "dump": "npx ts-node ./src/scripts/dump-json-schema.ts"
+    "dump-schema": "ts-node src/scripts/cli.ts dump-json-schema schema.local.json"
   },
-  "keywords": [],
-  "author": "",
+ "keywords": [
+  "playwright",
+  "test-runner",
+  "automation",
+  "json",
+  "testing",
+  "e2e",
+  "end-to-end",
+  "headless",
+  "browser-testing"
+  ],
+  "author": "Miguel Acosta",
   "license": "ISC",
   "peerDependencies": {
     "playwright": "^1.50.1"
+  },
+  "bin": {
+    "playwright-json-runner": "dist/scripts/cli.js"
   },
   "exports": {
     ".": {

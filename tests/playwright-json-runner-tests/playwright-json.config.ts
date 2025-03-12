@@ -3,6 +3,7 @@ import { extendConfig } from "playwright-json-runner/config";
 import {getLocatorValue, setLocatorValue} from "playwright-json-runner"
 
 const userConfig = extendConfig({
+  jsonTestDir: "json-tests",
   locatorStrategies: {
     textWaitForDom: async (page, strategy) => 
     {

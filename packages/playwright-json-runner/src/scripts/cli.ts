@@ -1,14 +1,14 @@
-#!/usr/bin/env ts-node
+#!/usr/bin/env node
 
 /**
  * scripts/cli.ts
  *
- * This is the main entry for your CLI.
+ * This is the main entry for CLI.
  * It expects usage: 
  *    playwright-json-runner dump-json-schema <outputFile>
  */
 
-import { dumpSchema } from ".."; // Import your function from wherever it's defined
+import { dumpSchema } from "..";
 import * as fs from "fs";
 
 (async function main() {
@@ -16,7 +16,7 @@ import * as fs from "fs";
 
   if (command === "dump-json-schema") {
     // If user didn't specify a filename, default to "schema.json"
-    const fileName = outputFile || "schema.json";
+    const fileName = outputFile || "playwright-json-runner-schema.json";
     try {
       // Suppose dumpSchema returns a JSON object or string
       const schemaJson = await dumpSchema(); 

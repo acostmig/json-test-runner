@@ -24,6 +24,7 @@
 - [Features](#features)
 - [Troubleshooting](#troubleshooting)
 - [Additional Examples](#additional-examples)
+- [Generating json Schema](#json-schema)
 
 ---
 
@@ -37,13 +38,33 @@ npm install playwright-json-runner --save-dev
 
 ## Quick Start
 
-  1. Install playwright playwright/test and playwright-json-runner.
-  2. (optional) Create a config file named ```playwright-json.config.ts``` or ```playwright-json.config.js```.
-  3. Place your JSON test files ```json-tests``` directory [example](#example-json-test)
-  4. Run tests using npx playwright test. Both JSON-based tests and traditional .spec.ts or .spec.js files will be executed.
+1. Run
+```npm install playwright-json-runner playwright @playwright/test --save-dev```
+1. (optional) Create a config file named ```playwright-json.config.ts``` or ```playwright-json.config.js```.
+1. Place your JSON test files ```json-tests``` directory [example](./tests/playwright-json-runner-tests/json-tests/github.playwright.json)
+1. Create ```playwright.config.ts``` with the this test runner as a project
+  ```ts
+    import { defineConfig } from '@playwright/test';
+
+    export default defineConfig({
+      testDir: "tests", //traditional .spec.ts files live here
+
+      //this enables json test runner to be discovered by playwright
+      projects:[
+        {
+          name: "Json-runner",
+          testDir: './node_modules/playwright-json-runner/dist/',
+          testMatch: 'runner-playwright.js',
+        }
+      ]
+    });
+  ```
+
+Run tests using ```npx playwright test``` or ```npx playwright test --ui``` Both JSON-defined tests and traditional .spec.ts or .spec.js files will be executed.
+
+
 
 <a id="configuration"></a>
-
 ## Configuration 📄
 
 playwright-json-runner looks for a configuration file named either ```playwright-json.config.ts``` or ```playwright-json.config.js```. 
@@ -61,7 +82,9 @@ This file allows you to customize how json files are handled, where they live (d
 import { extendConfig } from "playwright-json-runner/config";
 
 const userConfig = extendConfig({
- // add custom configuration here, more info below
+
+  jsonTestDir: "json-tests"
+
 });
 export default userConfig;
 
@@ -493,4 +516,20 @@ const userConfig: Configuration = {
 
 export default userConfig;
 ```
+
+## Json Schema
+
+this package is built using a Zod json schema, 
+This schema helps you integreate with AI tools for generating a valid JSON to feed into this package
+
+```sh
+ npx playwright-json-runner dump-json-schema playwright-json-runner-schema.json 
+```
+
+you may also import the Zod schema object
+```ts
+import { testRunSchema } from "playwright-json-runner"
+```
+
+
 🚀 **Now you're ready to run Playwright tests using JSON!** 🚀🔥
