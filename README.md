@@ -11,8 +11,8 @@
 - [Configuration](#configuration)
   - [Adding ActionTypes to the JSON](#configure-action)
     - default [action-typehandlers.ts](./packages//playwright-json-runner/src/defaults/action-type-handlers.ts)
-  - [Adding custom selectors](#configure-custom-selectors)
-      - default [identifier-selectors.ts](./packages//playwright-json-runner/src/defaults/identifier-selectors.ts)
+  - [Adding Locator resolving strategies](#adding-locator-strategies)
+      - default [identifier-selectors.ts](./packages//playwright-json-runner/src/defaults/locator-strategies.ts)
   - [Adding custom playwright interactions](#configure-custom-interactions)
       - default rule conditions (when each apply) [getter-setter-rules.ts](./packages//playwright-json-runner/src/defaults/getter-setter-rules.ts)
       - default getter strategies [getter-strategies.ts](./packages//playwright-json-runner/src/defaults/getter-strategies.ts)
@@ -58,12 +58,12 @@ By default:
 This file allows you to customize how json files are handled, where they live (directory and )
 
 ```ts
-import { Configuration, baseConfig } from "playwright-json-runner/config";
+import { extendConfig } from "playwright-json-runner/config";
 
-const userConfig: Configuration = {
-  ...baseConfig, //keeps default config
-  //add other configs
-};
+const userConfig = extendConfig({
+ // add custom configuration here, more info below
+});
+export default userConfig;
 
 ```
 
@@ -71,7 +71,7 @@ const userConfig: Configuration = {
 
 ## Table of Contents
 - [Adding ActionTypes to the JSON](#configure-action)
-- [Adding Custom Selectors](#configure-custom-selectors)
+- [Adding Custom Locator Resolving Strategies](#adding-locator-strategies)
 - [Adding Custom Playwright Interactions](#configure-custom-interactions)
 
 ---
@@ -95,10 +95,8 @@ default [action-typehandlers.ts](./packages//playwright-json-runner/src/defaults
 In your `playwright-json.config.ts` file, add a custom action type:
 
 ```ts
-const userConfig: Configuration = {
-  ...baseConfig,
-  actionTypeHandlers: {
-    ...baseConfig.actionTypeHandlers,
+const userConfig = extendConfig({
+   actionTypeHandlers: {
     "clear": async (locator) => {
       setLocatorValue(locator, "");
     },
@@ -106,7 +104,8 @@ const userConfig: Configuration = {
       expect(await getLocatorValue(locator)).toBe("");
     }
   }
-};
+});
+export default userConfig
 ```
 
 ### Example JSON Test with Custom Action
@@ -122,8 +121,8 @@ const userConfig: Configuration = {
         {
           "description": "Clear input field",
           "actions": [
-            { "type": "clear", "identifier": "username" },
-            { "type": "assertClear", "identifier": "username" }
+            { "type": "clear", "selector": "input[id=username]" },
+            { "type": "assertClear", "selector": "input[id=username]" }
           ]
         }
       ]
@@ -134,42 +133,58 @@ const userConfig: Configuration = {
 
 ---
 
-## Adding Custom Selectors <a id="configure-custom-selectors"></a>
+## Adding Locator Strategies
 
-### What are Custom Selectors?
+### What are Locator Strategies?
 
-Custom selectors **define how elements are located** in the UI when an `identifier` is used in JSON tests.
+Locator strategies **define how elements are located** in the UI when an `identifier` is used in JSON tests.
 
-### Why use Custom Selectors?
+### Why use Locator Strategies?
 
-- Helps **match elements dynamically** based on multiple attributes.
-- Allows defining **selectors that adapt to custom UI components**.
-- Improves **robustness** of test execution.
-**IMPORTANT**: order matters! notice how the xpath (often most complex) is defined on top, because whatever xpath matches first, is the one that will be used
+- Provides **flexible and modular** ways to locate elements.
+- Supports **multiple locator types** (e.g., selectors, roles, test IDs, text, and nested locators).
+- Ensures **robust and scalable** test execution.
 
-default [identifier-selectors.ts](./packages//playwright-json-runner/src/defaults/identifier-selectors.ts)
+
+By default, several locator strategies are available, such as:
+
+- **Selector-based locators** to find elements using CSS or XPath.
+- **Role-based locators** for elements with specific ARIA roles.
+- **Test ID locators** to find elements based on test-specific attributes.
+- **Text-based locators** to find elements by visible text.
+- **Nested locators** for more complex hierarchical selections.
+
+default [identifier-selectors.ts](./packages//playwright-json-runner/src/defaults/locator-strategies.ts)
 
 ### Example Configuration
 
-In `playwright-json.config.ts`, define custom selector xpath:
+In `playwright-json.config.ts`, define or extend locator strategies:
 
 ```ts
-const userConfig: Configuration = {
-  ...baseConfig,
-  identifierSelectors: [
-    "//label[normalize-space(text())='{input}']/following-sibling::input[@type='checkbox']"
-    ...baseConfig.identifierSelectors,
-  ]
-};
+const userConfig = extendConfig({
+  locatorStrategies: {
+    textWaitForDom: async (page, strategy) => {
+      page.waitForLoadState("domcontentloaded");
+      return page.getByText(strategy.value);
+    }
+  }
+});
+export default userConfig
 ```
 
 ### Example JSON Test Using Custom Selector
 
 ```json
 {
-  "description": "Check Terms and Conditions",
+  "description": "Find text element and click",
   "actions": [
-    { "type": "click", "identifier": "Accept Terms" }
+    {
+      "type": "click",
+      "locator": {
+        "type": "textWaitForDom",
+        "value": "Accept Terms"
+      }
+    }
   ]
 }
 ```
@@ -181,7 +196,8 @@ const userConfig: Configuration = {
 <input type="checkbox" id="terms">
 ```
 
----
+By defining custom locator strategies, tests become more **adaptive and resilient** to UI changes, ensuring a more stable automation framework.
+
 
 ## Adding Custom Playwright Interactions <a id="configure-custom-interactions"></a>
 
@@ -204,19 +220,17 @@ Custom interactions **override how elements are set or retrieved** when performi
 ### Example: Custom Setter Strategy
 
 ```ts
-const userConfig: Configuration = {
-  ...baseConfig,
+const userConfig = extendConfig({
   rules: {
     "myCustomInput": ({ xpathEval }) => xpathEval("//div[@contenteditable=true]")
-    ...baseConfig.rules,
   },
   setterStrategies: {
-    ...baseConfig.setterStrategies,
     "myCustomInput": async ({ locator, value }) => {
       await locator.fill(value ?? "");
     }
   }
-};
+});
+export default userConfig
 ```
 
 ### Example JSON Test Using Custom Interaction
@@ -237,19 +251,17 @@ const userConfig: Configuration = {
 ### Example: Custom Getter Strategy
 
 ```ts
-const userConfig: Configuration = {
-  ...baseConfig,
+const userConfig = extendConfig({
   rules: {
     "myCustomInput": ({ xpathEval }) => xpathEval("//div[@contenteditable=true]")
-    ...baseConfig.rules,
   },
   getterStrategies: {
-    ...baseConfig.getterStrategies,
     "myCustomInput": async ({ locator }) => {
       return await locator.inputValue();
     }
   }
-};
+});
+export default userConfig
 ```
 
 ---
@@ -343,43 +355,39 @@ In your `playwright-json.config.ts`, you can add custom action types, selectors,
 
 ```ts
 import { expect } from "@playwright/test";
-import { Configuration, baseConfig } from "playwright-json-runner/config";
-import { getLocatorValue, setLocatorValue } from "playwright-json-runner";
+import { extendConfig } from "playwright-json-runner/config";
+import {getLocatorValue, setLocatorValue} from "playwright-json-runner"
 
-const userConfig: Configuration = {
-  ...baseConfig,
-  identifierSelectors: [
-    // For example, in the application under test, all checkboxes are defined by:
-    // having a label and a sibling right after that's an input type checkbox.
-    // (important: the first rule to match will be used)
-    "//label[normalize-space(text())='{input}']/following-sibling::input[@type='checkbox']",
-    ...baseConfig.identifierSelectors,
-  ],
-  actionTypeHandlers: { 
-    ...baseConfig.actionTypeHandlers,
-    "clear": async (locator) => {
-      setLocatorValue(locator, "");
-    },
-    "assertClear": async (locator) => {
-      expect(await getLocatorValue(locator)).toBe("");
+const userConfig = extendConfig({
+  locatorStrategies: {
+    textWaitForDom: async (page, strategy) => 
+    {
+      page.waitForLoadState("domcontentloaded");
+      return page.getByText(strategy.value)
     }
   },
-  // Define when it applies (important: the first rule to match will be used)
+  actionTypeHandlers:{ 
+    "clear": async (locator)=>{
+      setLocatorValue(locator, "")
+    },
+    "assertClear": async (locator)=>{
+      expect(getLocatorValue(locator)).toBe("")
+    }
+  },
+  //define when it applies
   rules: {
-    "myCustomInput": ({ xpathEval }) => xpathEval("//div[@contenteditable=true]"),
-    ...baseConfig.rules,
+    "myCustomInput": ({ xpathEval }) => xpathEval("//div[@contenteditable=true")
   },
-  // Strategy for setting the value used when actionTypeHandlers call getLocatorValue
-  setterStrategies: {
-    ...baseConfig.setterStrategies,
-    "myCustomInput": async ({ locator, value }) => await locator.fill(value ?? "")
-  },
-  // Strategy for getting the value used when actionTypeHandlers call setLocatorValue
+  //strategy for getting the value used when actionTypeHandlers call setLocatorValue
   getterStrategies: {
-    ...baseConfig.getterStrategies,
-    "myCustomInput": async ({ locator }) => await locator.inputValue()
+    "myCustomInput": async ({locator}) => await locator.inputValue()
   },
-};
+  //strategy for setting the value used when actionTypeHandlers call getLoctorvalue
+  setterStrategies: {
+    "myCustomInput": async ({locator, value}) => await locator.fill(value??"")
+  }
+  
+});
 
 export default userConfig;
 ```
@@ -411,15 +419,19 @@ implementations for all the [baseConfig](./packages/playwright-json-runner/src/d
           "actions": [
             {
               "type": "clear",
-              "identifier": "name"
+              "selector": "[id=name]"
             },
             {
               "type": "assertClear",
-              "identifier": "name"
+              "selector": "[id=name]"
             },
             {
               "type": "click",
-              "identifier": "checkbox label"
+              "locator": 
+              {
+                "type": "textWaitForDom",
+                "value": "checkbox label"
+              }
             },
             {
               "type": "setFieldValue",
@@ -441,4 +453,53 @@ implementations for all the [baseConfig](./packages/playwright-json-runner/src/d
 
 This configuration and test example showcase how you can **extend and customize** your Playwright JSON runner setup to handle a variety of UI interactions with enhanced flexibility.
 
+
+
+### Example: Replacing the default Configuration
+
+```ts
+import { expect } from "@playwright/test";
+import { Configuration, baseConfig } from "playwright-json-runner/config";
+import { getLocatorValue, setLocatorValue } from "playwright-json-runner";
+
+const userConfig: Configuration = {
+  //...baseConfig allows you to use default, unless overwritten
+  ...baseConfig,
+  identifierSelectors: [
+    // For example, in the application under test, all checkboxes are defined by:
+    // having a label and a sibling right after that's an input type checkbox.
+    // (important: the first rule to match will be used)
+    "//label[normalize-space(text())='{input}']/following-sibling::input[@type='checkbox']",
+
+    //...baseConfig.identifierSelectors allows you to keep default, but the above will be tried first
+    ...baseConfig.identifierSelectors,
+  ],
+  actionTypeHandlers: { 
+    ...baseConfig.actionTypeHandlers,
+    "clear": async (locator) => {
+      setLocatorValue(locator, "");
+    },
+    "assertClear": async (locator) => {
+      expect(await getLocatorValue(locator)).toBe("");
+    }
+  },
+
+  //the below defines setfieldvalue and getfield value functionalities
+  // be careful, if you use setFieldValue action in a
+  // Define when it applies (important: the first rule to match will be used)
+  rules: {
+    "myCustomInput": ({ xpathEval }) => xpathEval("//div[@contenteditable=true]"),
+  },
+  // Strategy for setting the value used when actionTypeHandlers call getLocatorValue
+  setterStrategies: {
+    "myCustomInput": async ({ locator, value }) => await locator.fill(value ?? "")
+  },
+  // Strategy for getting the value used when actionTypeHandlers call setLocatorValue
+  getterStrategies: {
+    "myCustomInput": async ({ locator }) => await locator.inputValue()
+  },
+};
+
+export default userConfig;
+```
 🚀 **Now you're ready to run Playwright tests using JSON!** 🚀🔥

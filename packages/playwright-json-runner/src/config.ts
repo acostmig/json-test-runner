@@ -1,18 +1,18 @@
 import { cosmiconfigSync } from "cosmiconfig";
 import { Locator } from "playwright";
-import { ActionType, TestAction } from ".";
+import { ActionType, LocatorStrategies, TestAction } from ".";
 import actionTypeHandlers from "./defaults/action-type-handlers";
-import identifierSelectors from "./defaults/identifier-selectors";
 import getterSetterRules from "./defaults/getter-setter-rules";
 import getterStrategies from "./defaults/getter-strategies";
 import setterStrategies from "./defaults/setter-strategies";
+import locatorStrategies from "./defaults/locator-strategies";
 
 export const baseConfig: Configuration = {
   actionTypeHandlers: actionTypeHandlers,
-  identifierSelectors: identifierSelectors,
   rules: getterSetterRules,
   setterStrategies: setterStrategies,
   getterStrategies: getterStrategies,
+  locatorStrategies: locatorStrategies,
   jsonTestDir: 'json-tests',
   jsonTestMatch: `**\/*.playwright.json`
 };
@@ -25,6 +25,8 @@ export type RuleType = (params: ConditionParams) => boolean;
 export type SetterStrategyType = (param: StrategyParam) => Promise<void>;
 export type GetterStrategyType = (param: StrategyParam) => Promise<string | null>;
 export type ActionTypeHandler = (locator: Locator, action: TestAction) => Promise<void>;
+
+
 export interface RuleMatch {
   id: string
   xpath?: string,
@@ -41,13 +43,42 @@ export interface StrategyParam {
   value?: string
 }
 
+export function extendConfig(extensions: Partial<Configuration>): Configuration {
+  return {
+    ...baseConfig,
+    ...extensions, // Merge top-level properties
 
-  /**
-   * 
-   * 
-   * 
-   * **usage**
-   * 
+    locatorStrategies: {
+      ...baseConfig.locatorStrategies,
+      ...extensions.locatorStrategies ?? {} // Merge objects
+    },
+    actionTypeHandlers: {
+      ...baseConfig.actionTypeHandlers,
+      ...extensions.actionTypeHandlers ?? {} // Merge objects
+    },
+    rules: {
+      ...baseConfig.rules,
+      ...extensions.rules ?? {} // Merge objects
+    },
+    getterStrategies: {
+      ...baseConfig.getterStrategies,
+      ...extensions.getterStrategies ?? {} // Merge objects
+    },
+    setterStrategies: {
+      ...baseConfig.setterStrategies,
+      ...extensions.setterStrategies ?? {} // Merge objects
+    }
+  };
+}
+
+
+
+ /**
+  * 
+  * 
+  * 
+  * **usage**
+  * 
   * playwright-json.config.ts example:
   * ```
   * import { expect } from "@playwright/test";
@@ -144,56 +175,7 @@ export interface StrategyParam {
   * ```
   */
 interface Configuration<TActionType extends string = ActionType | string, TRuleKeys extends string = RuleKeys | string> {
-    /**
-   * **What**: strategies for **finding** locators using multiple XPath rules
-   * 
-   * **Why**: allows the system to **dynamically locate** UI elements based on various attributes 
-   * and text-based identifiers, improving robustness and flexibility.
-   * 
-   * **When**: used when the property ```identifier``` is provided in the json under Action obect
-   * return the first matching element.
-   * 
-   * **Requirement**: must contain XPath patterns where `{input}` will be
-   *  replaced with the actual identifier from the action in the JSON.
-   * 
-   * **Usage**
-   * 
-
-   * 
-   * **playwright-json.config.ts**:
-   * ```
-   * const userConfig: Configuration = {
-   *    ...baseConfig,
-   *    identifierSelectors:[
-   *       ...baseConfig.identifierSelectors, // Keep default selectors
-   *       "//label[normalize-space(text())='{input}']/following-sibling::input[@type='checkbox']"
-   *    }
-   * }
-   * ```
-   * 
-   * json test example:
-   * 
-   * ```
-   * {
-   *   //... rest of the file
-   *   "description": "Navigate to create account",
-   *   "actions": [
-   *     {
-   *       "type": "click",
-   *       "identifier": "checkbox label"
-   *     }
-   *   ]
-   * }
-   * ```
-   * **html in the application under test**
-   * ```
-   * 
-   * <label for="terms">Accept Terms</label>
-   * <input type="checkbox" id="terms">
-   * 
-   * ```
-   */
-  identifierSelectors: string[];
+  locatorStrategies: LocatorStrategies
   rules: Record<TRuleKeys, RuleType>;
   /**
    * **What**: strategies for **setting** the value
@@ -286,23 +268,26 @@ export function getConfiguration(): Configuration {
   return config;
 }
 
+const explorer = cosmiconfigSync('playwright-json', {
+  searchPlaces: [
+    'playwright-json.config.ts',
+    'playwright-json.config.js',
+  ],
+});
+
 export function loadConfiguration(): Configuration {
-  const explorer = cosmiconfigSync('playwright-json', {
-    searchPlaces: [
-      'playwright-json.config.ts',
-      'playwright-json.config.js',
-    ],
-  });
-
   try {
-    const result = explorer.search();
-
-    if (result && result.config) {
-      // console.log(`✅ Loaded user config from: ${result.filepath}`);
-      const userConfig: Configuration = result.config.default || result.config;
-      return userConfig;
-    } else {
-      // console.log('No configuration file found. Using baseConfig.');
+    if(explorer)
+    {
+      const result = explorer.search();
+      if (result && result.config) {
+        return result.config || result.config.default;
+      } else {
+        return baseConfig;
+      }
+    }
+    else
+    {
       return baseConfig;
     }
   } catch (error) {

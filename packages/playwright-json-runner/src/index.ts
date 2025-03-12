@@ -1,43 +1,67 @@
-interface WithLabel {
-  label?: string
-}
-interface WithDescription {
-  description?: string
-}
-interface TestObject extends WithLabel, WithDescription {
+import zodToJsonSchema from "zod-to-json-schema";
+import { locatorStrategyParamsSchema } from "./locator-resolver";
+import { z } from "zod";
 
-}
-export type ActionType = 'setfieldvalue' | 'click' | 'navigate' | 'expect' | 'assertFieldValueEquals' | 'assertFieldValueContains';
+const withLabelSchema = z.object({
+  label: z.string().optional(),
+});
+const withDescriptionSchema = z.object({
+  description: z.string().optional(),
+});
+const testObjectSchema = withLabelSchema.merge(withDescriptionSchema);
+
+const actionTypeSchema = z.enum([
+  "setfieldvalue",
+  "click",
+  "navigate",
+  "expect",
+  "assertFieldValueEquals",
+  "assertFieldValueContains",
+  "assertElementExists",
+  "sleep"
+]);
+export type ActionType = z.infer<typeof actionTypeSchema>;
+
+const testActionSchema = testObjectSchema.extend({
+  type: actionTypeSchema,
+  value: z.string().optional(),
+  expectFunction: z.string().optional().describe("on verify steps, the expect function to use (e.g. toBe, toContain, etc.)"),
+  locator: locatorStrategyParamsSchema.optional().describe("Locator to use for the action"),
+  selector: z.string().optional().describe("Selector to use for the action (replaces locator)"),
+});
+export type TestAction = z.infer<typeof testActionSchema>;
 
 
-// Define test structure types
-export interface TestAction extends TestObject {
-  type: ActionType;
-  selector?: string;
-  identifier?: string;
-  value?: string;
-  url?: string;
-  expectFunction?: string;
-  nth: number
-}
+const testStepSchema = testObjectSchema.extend({
+  description: z.string(),
+  actions: z.array(testActionSchema),
+});
+export type TestStep = z.infer<typeof testStepSchema>;
 
-export interface TestStep extends TestObject {
-  description: string;
-  actions: TestAction[];
-}
+//
+// 6. TestScenario extends TestObject, with required `name` and array of steps
+//
+const testScenarioSchema = testObjectSchema.extend({
+  name: z.string(),
+  steps: z.array(testStepSchema),
+});
+export type TestScenario = z.infer<typeof testScenarioSchema>;
 
-export interface TestScenario extends TestObject {
-  name: string;
-  steps: TestStep[];
-}
+const testRunSchema = testObjectSchema.extend({
+  browser: z.enum(["chrome", "firefox", "webkit"]),
+  host: z.string(),
+  scenarios: z.array(testScenarioSchema),
+});
+export type TestRun = z.infer<typeof testRunSchema>;
 
-export interface TestRun extends TestObject {
-  browser: "chrome" | "firefox" | "webkit";
-  host: string;
-  scenarios: TestScenario[];
-}
-
-export { smartLocator } from "./smart-locator";
 export { getLocatorValue, setLocatorValue } from "./locator-actions";
 export { runTests } from './runner'
+export * from "./locator-resolver";
 
+export function dumpSchema()
+{
+  const jsonSchema = zodToJsonSchema(testRunSchema, {
+      name: "TestRun",
+    });
+  console.log(JSON.stringify(jsonSchema, null, 2));
+}

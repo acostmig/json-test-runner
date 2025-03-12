@@ -1,10 +1,12 @@
 import { Page, Locator } from "playwright";
 import { error } from "console";
-import { smartLocator } from "./smart-locator";
 import { getConfiguration } from "./config";
 import { test } from '@playwright/test'
-import { globSync, readFileSync } from "fs";
-import { TestAction, TestRun } from ".";
+import { readFileSync } from "fs";
+import { globSync } from "glob";
+import { resolveLocator, TestAction, TestRun } from ".";
+
+
 
 function loadTestFiles() {
   const config = getConfiguration();
@@ -23,7 +25,8 @@ const jsonFiles = loadTestFiles();;
 
 for (const testFilePath of jsonFiles) {
   const testRun: TestRun = JSON.parse(readFileSync(testFilePath, 'utf-8'));
-  
+  const config = getConfiguration();
+
   for (const scenario of testRun.scenarios) {
     test(scenario.label ?? scenario.name, async ({ page }) => {
       await page.goto(testRun.host);
@@ -34,31 +37,39 @@ for (const testFilePath of jsonFiles) {
 
         for (const action of step.actions) {
 
-          if (action.type == "navigate") {
+          if (action.type === "navigate") {
             await HandleActionTypeNavigate(action, page)
+            continue;
+          }
+          if (action.type === "sleep") {
+            if(!action.value)
+            {
+              throw error("Action type: sleep must have 'value' prop in MS")
+            }
+            await page.waitForTimeout(Number.parseInt(action.value));
+            continue;
           }
 
-          let locator = undefined
-          if (action.selector) {
-            console.log(`    - 🔹 Performing action: ` + (action.label ?? `${action.type} on ${action.selector}`));
-            locator = page.locator(action.selector);
+          console.log(`    - 🔹 Performing action: ` + (action.label ?? `${action.type}`));
+
+          if(action.selector)
+          {
+            action.locator = {
+              type: "selector",
+              value: action.selector
+            }
           }
-          else if (action.identifier) {
-            console.log(`    - 🔹 Performing action: ` + (action.label ?? `${action.type} on ${action.identifier}`));
-            locator = await smartLocator(page, action.identifier)
+          if (!action.locator) {
+              throw new Error(`Action must have a valid locator: ${JSON.stringify(action)}`);
           }
-          else {
-            throw new Error("Action must have an 'identifier' or 'selector'")
-          }
+          const locator = await resolveLocator(config.locatorStrategies, page, action.locator);
+
           await executeAction(locator, action);
         }
       }
     })
   }
 }
-
-
-
 
 async function executeAction(locator: Locator, action: TestAction) {
   const config = await getConfiguration();

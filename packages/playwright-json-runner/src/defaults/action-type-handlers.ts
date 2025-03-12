@@ -5,9 +5,13 @@ import { ActionType } from "../";
 
 
 const actionTypeHandlers : Record<ActionType, ActionTypeHandler> = {
-    "navigate": async (_, { url }) => {
-      if (url) {
-        console.log(`Navigating to ${url}`);
+    "sleep": async (_, {value})=>{
+
+    },
+    "navigate": async (_, { value }) => {
+      if (value) {
+        console.log(`Navigating to ${value}`);
+        
       }
       else
       {
@@ -23,16 +27,13 @@ const actionTypeHandlers : Record<ActionType, ActionTypeHandler> = {
       }
       await setLocatorValue(locator, value);
     },
-    "click": async (locator, { nth }) => {
+    "click": async (locator) => {
       if (locator) {
-        if(nth)
-        {
-          await locator.nth(nth).click();
-        }
-        else
-        { 
-          await locator.click();
-        }
+        await locator.click();
+      }
+      else
+      {
+        throw new Error("The 'click' action requires a 'locator' or 'selector' property.");
       }
     },
     "assertFieldValueEquals": async (locator, { value }) => {
@@ -55,6 +56,9 @@ const actionTypeHandlers : Record<ActionType, ActionTypeHandler> = {
       }
       const actual = await getLocatorValue(locator);
       expect(actual).toContain(value);    
+    },
+    "assertElementExists": async (locator) => {
+      await expect(locator).toBeAttached();   
     },
     "expect": async (locator, { value, expectFunction }) => {
       if (!locator) {

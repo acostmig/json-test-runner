@@ -1,64 +1,124 @@
 {
-    "driver": "Playwright",
-    "browser": "chrome",
-    "host": "https://www.github.com/",
-    "scenarios": [
-      {
-        "name": "Signup Test",
-        "steps": [
-          {
-            "description": "Navigate to create account",
-            "actions": [
-              {
-                "type": "Click",
-                "identifier": "Sign in",
-                "nth": 1
-              },
-              {
-                "type": "Click",
-                "identifier": "Create an account",
-                "label": "Click on Create an Account"
+  "driver": "Playwright",
+  "browser": "chrome",
+  "host": "https://www.github.com/",
+  "scenarios": [
+    {
+      "name": "Signup Test",
+      "steps": [
+        {
+          "description": "Navigate to create account",
+          "actions": [
+            {
+              "type": "Click",
+              "locator": {
+                "type": "texttest",
+                "value": {
+                  "role": "link",
+                  "options": {
+                    "name": "Sign in"
+                  }
+                }
               }
-            ]
-          },
-          {
-            "description": "Fill the signup form",
-            "actions": [
-              {
-                "type": "SetFieldValue",
-                "identifier": "email",
-                "value": "playwright-json-runner@automategpt.com"
+            },
+            {
+              "type": "Click",
+              "locator": {
+                "type": "role",
+                "value": {
+                  "role": "link",
+                  "options": {
+                    "name": "Create an account"
+                  }
+                }
               },
-              {
-                "type": "SetFieldValue",
-                "identifier": "password",
-                "value": "Some Password"
+              "label": "Click on Create an Account"
+            }
+          ]
+        },
+        {
+          "description": "Fill the signup form",
+          "actions": [
+            {
+              "type": "SetFieldValue",
+              "locator": {
+                "type": "role",
+                "value": {
+                  "role": "textbox",
+                  "options": {
+                    "name": "Email"
+                  }
+                }
               },
-              {
-                "type": "SetFieldValue",
-                "identifier": "username-container",
-                "value": "miguel_acosta"
+              "value": "playwright-json-runner@automategpt.com"
+            },
+            {
+              "type": "SetFieldValue",
+              "locator": {
+                "type": "role",
+                "value": {
+                  "role": "textbox",
+                  "options": {
+                    "name": "Password"
+                  }
+                }
               },
-              {
-                "type": "Click",
-                "identifier": "Continue",
-                "value": "Some Password"
+              "value": "Some Password"
+            },
+            {
+              "type": "SetFieldValue",
+              "locator": {
+                "type": "role",
+                "value": {
+                  "role": "textbox",
+                  "options": {
+                    "name": "Username"
+                  }
+                }
+              },
+              "value": "miguel_acosta"
+            },
+            {
+              "type": "Click",
+              "locator": {
+                "type": "role",
+                "value": {
+                  "role": "button",
+                  "options": {
+                    "name": "Continue"
+                  }
+                }
               }
-            ]
-          },
-          {
-            "description": "Assertions",
-            "actions": [
-              {
-                "type": "assertFieldValueEquals",
-                "identifier": "email",
-                "value": "playwright-json-runner@automategpt.com"
-              }
-            ]
-            
-          }
-        ]
-      }
-    ]
-  }
-  
+            }
+          ]
+        },
+        {
+          "description": "Assertions",
+          "actions": [
+            {
+              "type": "assertFieldValueEquals",
+              "locator": {
+                "type": "role",
+                "value": {
+                  "role": "textbox",
+                  "options": {
+                    "name": "Email"
+                  }
+                }
+              },
+              "value": "playwright-json-runner@automategpt.com"
+            },
+            {
+              "type": "sleep",
+              "value": "2000"
+            },
+            {
+              "type": "sleep",
+              "value": "8000"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -7,7 +7,8 @@
     "build": "tsup",
     "build-pack": "tsup && npm pack",
     "start": "node dist/index.js",
-    "dev": "tsup --watch"
+    "dev": "tsup --watch",
+    "dump": "npx ts-node ./src/scripts/dump-json-schema.ts"
   },
   "keywords": [],
   "author": "",
@@ -42,6 +43,8 @@
     "glob": "^11.0.1",
     "jsdom": "^26.0.0",
     "linkedom": "^0.18.9",
-    "uninstall": "^0.0.0"
+    "uninstall": "^0.0.0",
+    "zod": "^3.24.2",
+    "zod-to-json-schema": "^3.24.3"
   }
 }

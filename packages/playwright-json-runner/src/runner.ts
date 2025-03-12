@@ -1,10 +1,11 @@
 import { chromium, firefox, webkit, Browser, Page, Locator } from "playwright";
 import { error } from "console";
-import { smartLocator } from "./smart-locator";
 import { getConfiguration } from "./config";
-import {TestAction, TestRun } from '.'
+import {resolveLocator, TestAction, TestRun } from '.'
 
 export async function runTests(testRun: TestRun): Promise<void> {
+  const config = getConfiguration();
+  
   // Select browser
   const browserType = {
     chrome: chromium,
@@ -33,21 +34,10 @@ export async function runTests(testRun: TestRun): Promise<void> {
             await HandleActionTypeNavigate(action, page)
           }
 
-          let locator = undefined
-          if(action.selector)
-          {
-            console.log(`    - 🔹 Performing action: `+(action.label?? `${action.type} on ${action.selector}`));
-            locator = page.locator(action.selector);
+          if (!action.locator) {
+              throw new Error(`Action must have a valid locator: ${JSON.stringify(action)}`);
           }
-          else if(action.identifier)
-          {
-            console.log(`    - 🔹 Performing action: `+(action.label?? `${action.type} on ${action.identifier}`));
-            locator = await smartLocator(page, action.identifier)
-          }
-          else
-          {
-            throw new Error("Action must have an 'identifier' or 'selector'")
-          }
+          const locator = await resolveLocator(config.locatorStrategies, page, action.locator);
           await executeAction(locator, action);
         }
       }

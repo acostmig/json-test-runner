@@ -13,9 +13,9 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   use: {
-    headless: false
+    headless: true
   },
-  testDir: "jsonrunner",
+  testDir: ".",
   reporter: [ ['html', { open: 'never' }] ],
   projects:[
     {
