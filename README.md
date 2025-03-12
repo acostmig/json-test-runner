@@ -465,15 +465,6 @@ import { getLocatorValue, setLocatorValue } from "playwright-json-runner";
 const userConfig: Configuration = {
   //...baseConfig allows you to use default, unless overwritten
   ...baseConfig,
-  identifierSelectors: [
-    // For example, in the application under test, all checkboxes are defined by:
-    // having a label and a sibling right after that's an input type checkbox.
-    // (important: the first rule to match will be used)
-    "//label[normalize-space(text())='{input}']/following-sibling::input[@type='checkbox']",
-
-    //...baseConfig.identifierSelectors allows you to keep default, but the above will be tried first
-    ...baseConfig.identifierSelectors,
-  ],
   actionTypeHandlers: { 
     ...baseConfig.actionTypeHandlers,
     "clear": async (locator) => {

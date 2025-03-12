@@ -19,13 +19,13 @@ const actionTypeSchema = z.enum([
   "assertFieldValueContains",
   "assertElementExists",
   "sleep"
-]);
+]).describe("The type of action to perform");
 export type ActionType = z.infer<typeof actionTypeSchema>;
 
 const testActionSchema = testObjectSchema.extend({
   type: actionTypeSchema,
   value: z.string().optional(),
-  expectFunction: z.string().optional().describe("on verify steps, the expect function to use (e.g. toBe, toContain, etc.)"),
+  playwrightFunction: z.string().optional().describe("on verify steps, the expect function to use (e.g. toBe is the playwright equivalent to: expect(locator).toBe(value)"),
   locator: locatorStrategyParamsSchema.optional().describe("Locator to use for the action"),
   selector: z.string().optional().describe("Selector to use for the action (replaces locator)"),
 });

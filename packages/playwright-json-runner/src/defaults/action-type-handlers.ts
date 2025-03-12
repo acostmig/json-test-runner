@@ -60,7 +60,7 @@ const actionTypeHandlers : Record<ActionType, ActionTypeHandler> = {
     "assertElementExists": async (locator) => {
       await expect(locator).toBeAttached();   
     },
-    "expect": async (locator, { value, expectFunction }) => {
+    "expect": async (locator, { value, playwrightFunction }) => {
       if (!locator) {
         throw new Error("The 'expect' action requires a 'locator' property.");
       }
@@ -69,14 +69,14 @@ const actionTypeHandlers : Record<ActionType, ActionTypeHandler> = {
         throw new Error("The 'expect' action requires a non-null 'value' property.");
       }
       
-      if (!expectFunction) {
-        throw new Error("The 'expect' action requires an 'expectFunction' property.");
+      if (!playwrightFunction) {
+        throw new Error("The 'expect' action requires an 'playwrightFunction' property.");
       }
       
-      if (typeof (expect(locator) as any)[expectFunction] !== 'function') {
-        throw new Error(`Invalid 'expectFunction': '${expectFunction}' is not a valid Playwright assertion.`);
+      if (typeof (expect(locator) as any)[playwrightFunction] !== 'function') {
+        throw new Error(`Invalid 'playwrightFunction': '${playwrightFunction}' is not a valid Playwright assertion.`);
       }
-      await (expect(locator) as any)[expectFunction](value);
+      await (expect(locator) as any)[playwrightFunction](value);
 
     }
 }
