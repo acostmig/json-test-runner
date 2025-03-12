@@ -18,25 +18,32 @@ jobs:
         with:
           node-version: '22'
           registry-url: 'https://registry.npmjs.org/'
+          cache: 'npm'
+          cache-dependency-path: packages/playwright-json-runner/package-lock.json
 
       - name: Install dependencies
+        working-directory: packages/playwright-json-runner
         run: npm ci
 
       - name: Extract version from Git tag
+        working-directory: packages/playwright-json-runner
         run: |
           VERSION=${GITHUB_REF#refs/tags/v}  # Extract '1.0.1' from 'v1.0.1'
           npm version $VERSION --no-git-tag-version
         shell: bash
 
       - name: Build package
+        working-directory: packages/playwright-json-runner
         run: npm run build
 
       - name: Publish to npm
+        working-directory: packages/playwright-json-runner
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Commit updated package.json
+        working-directory: packages/playwright-json-runner
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
