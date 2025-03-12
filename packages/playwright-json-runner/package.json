@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "Extends Playwright to run tests using JSON-based test definitions.",
   "module": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/acostmig/json-test-runner.git"
+  },
   "scripts": {
     "build": "tsup",
     "build-pack": "tsup && npm pack",
