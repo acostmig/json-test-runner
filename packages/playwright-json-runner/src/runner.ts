@@ -1,7 +1,11 @@
-import { chromium, firefox, webkit, Browser, Page, Locator } from "playwright";
+import { chromium, firefox, webkit, Browser, Page } from "playwright";
 import { error } from "console";
-import { getConfiguration } from "./config";
-import {resolveLocator, TestAction, TestRun } from '.'
+import { getConfiguration, Configuration } from "./config";
+import { TestAction } from "./schemas/test-action";
+import { TestScenario } from "./schemas/test-scenario";
+import { TestStep } from "./schemas/test-step";
+import { TestRun } from "./schemas/test-run";
+import { resolveLocator } from "./locator-resolver";
 
 export async function runTests(testRun: TestRun): Promise<void> {
   const config = getConfiguration();
@@ -17,54 +21,82 @@ export async function runTests(testRun: TestRun): Promise<void> {
 
   console.log(`🚀 Running tests on ${testRun.host} using ${testRun.browser}`);
 
+  await ExecuteTestRun(config, browser, testRun);
+
+  await browser.close();
+}
+
+async function ExecuteTestRun(config: Configuration, browser: Browser, testRun: TestRun) {
   for (const scenario of testRun.scenarios) {
     const context = await browser.newContext({baseURL: testRun.host, recordVideo: {dir:"./videos"}});
     const page: Page = await context.newPage();
     try{
-      await page.goto("/");
-      console.log(`📌 Executing scenario: ${scenario.label?? scenario.name}`);
-
-      for (const step of scenario.steps) {
-        console.log(`  🛠 Step: ${step.label??step.description}`);
-
-        for (const action of step.actions) {
-
-          if(action.type == "navigate")
-          {
-            await HandleActionTypeNavigate(action, page)
-          }
-
-          if (!action.locator) {
-              throw new Error(`Action must have a valid locator: ${JSON.stringify(action)}`);
-          }
-          const locator = await resolveLocator(config.locatorStrategies, page, action.locator);
-          await executeAction(locator, action);
-        }
-      }
+      executeScenario(config, page, scenario);
     }
     finally{
       await context.close();
     }
 
   }
-
-  await browser.close();
+  
 }
 
+async function executeScenario(config: Configuration, page: Page, scenario: TestScenario) {
+  console.log(`📌 Executing scenario: ${scenario.label?? scenario.name}`);
+  await page.goto("/");
 
-
-async function executeAction(locator:Locator, action: TestAction) {
-  const config = getConfiguration();
-  const handler = Object.entries(config.actionTypeHandlers).find(
-    ([key]) => key.toLowerCase() === action.type.toLowerCase()
-  )?.[1];
-  
-  if (!handler) {
-    throw new Error(`No handler found for action type: ${action.type}`);
+  for (const step of scenario.steps) {
+    await executeStep(config, page, step);  
   }
-  await handler(locator, action);
   
 }
+
+async function executeStep(config: Configuration, page: Page, step: TestStep) {
+  console.log(`  🛠 Step: ${step.label ?? step.description}`);
+  for (const action of step.actions) {
+      await executeAction(config, page, action);
+  }
+}
+
+export async function executeAction(config: Configuration, page: Page, action: TestAction) {
+
+    console.log(`    - 🔹 Performing action: ` + (action.label ?? `${action.type}`));
+
+    if (action.type === "navigate") {
+      await HandleActionTypeNavigate(action, page)
+      return;
+    }
+    if (action.type === "sleep") {
+      if(!action.value)
+      {
+        throw error("Action type: sleep must have 'value' prop in MS")
+      }
+      await page.waitForTimeout(Number.parseInt(action.value));
+      return;
+    }
+    //handle selector based action (replaces locator property in the object)
+    if(action.selector)
+    {
+      action.locator = {
+        type: "selector",
+        value: action.selector
+      }
+    }
+    if (!action.locator) {
+        throw new Error(`Action must have a valid locator: ${JSON.stringify(action)}`);
+    }
+    const locator = await resolveLocator(config.locatorStrategies, page, action.locator);
+
+    const handler = Object.entries(config.actionTypeHandlers).find(
+      ([key]) => key.toLowerCase() === action.type.toLowerCase()
+    )?.[1];
+  
+    if (!handler) {
+      throw new Error(`No handler found for action type: ${action.type}`);
+    }
+    await handler(locator, action);
+}
+
 
 async function HandleActionTypeNavigate(action: TestAction, page: Page) {
   if (action.value) {

@@ -1,14 +1,45 @@
 import { Locator } from "playwright";
 import { JSDOM } from "jsdom";
-import { Configuration } from "./config";
-import { getConfiguration, RuleMatch } from "./config";
+import { getConfiguration, RuleMatch, Configuration} from "./config";
+
 
 /**
- * Loads the user's Playwright config dynamically if it exists.
- * Falls back to default config if no user config is found.
+ * Finds the best matching locator and sets its value.
+ * @param locator Locator representing the field
+ * @param value Value to be set.
+ * @param waitSeconds Timeout in seconds (default: 30s).
  */
+export async function setLocatorValue(locator: Locator, value: string|undefined): Promise<void> {
+  const html = await locator.evaluate(el => el.outerHTML);
+  const config = getConfiguration();
+  const ruleMatch= getRuleMatch(html, config)
 
+  if (ruleMatch && config.setterStrategies[ruleMatch.id]) {
+    const targetLocator = ruleMatch.matchedChild && ruleMatch.xpath? locator.locator(ruleMatch.xpath): locator
+    return await config.setterStrategies[ruleMatch.id]({locator: targetLocator, ruleMatch, value});
+  }
+  
+  throw new Error(`❌ Couldn't find a rule match for on element ${locator} \b html: ${html}`);
+}
 
+/**
+ * Finds the best matching locator and gets its value.
+ * @param locator Locator representing the field
+ * @param value Value to be set.
+ * @param waitSeconds Timeout in seconds (default: 30s).
+ */
+export async function getLocatorValue(locator: Locator): Promise<string|null> {
+  const html = await locator.evaluate(el => el.outerHTML);
+  const config = getConfiguration();
+  const ruleMatch= getRuleMatch(html, config)
+  
+  if (ruleMatch && config.getterStrategies[ruleMatch.id]) {
+    const targetLocator = ruleMatch.matchedChild && ruleMatch.xpath? locator.locator(ruleMatch.xpath): locator
+    return await config.getterStrategies[ruleMatch.id]({locator: targetLocator, ruleMatch});
+  }
+  
+  throw new Error(`❌ Couldn't find a rule match for on element ${locator} \b html: ${html}`);
+}
 
 function getRuleMatch(html: string, config: Configuration): RuleMatch | null {
   const { document } = new JSDOM(html).window;
@@ -45,39 +76,4 @@ function getRuleMatch(html: string, config: Configuration): RuleMatch | null {
   }
 
   return null; // No match found
-}
-
-
-
-
-/**
- * Finds the best matching locator and sets its value.
- * @param locator Locator representing the field
- * @param value Value to be set.
- * @param waitSeconds Timeout in seconds (default: 30s).
- */
-export async function setLocatorValue(locator: Locator, value: string|undefined): Promise<void> {
-  const html = await locator.evaluate(el => el.outerHTML);
-  const config = getConfiguration();
-  const ruleMatch= getRuleMatch(html, config)
-
-  if (ruleMatch && config.setterStrategies[ruleMatch.id]) {
-    const targetLocator = ruleMatch.matchedChild && ruleMatch.xpath? locator.locator(ruleMatch.xpath): locator
-    return await config.setterStrategies[ruleMatch.id]({locator: targetLocator, ruleMatch, value});
-  }
-  
-  throw new Error(`❌ Couldn't find a rule match for on element ${locator} \b html: ${html}`);
-}
-
-export async function getLocatorValue(locator: Locator): Promise<string|null> {
-  const html = await locator.evaluate(el => el.outerHTML);
-  const config = getConfiguration();
-  const ruleMatch= getRuleMatch(html, config)
-  
-  if (ruleMatch && config.getterStrategies[ruleMatch.id]) {
-    const targetLocator = ruleMatch.matchedChild && ruleMatch.xpath? locator.locator(ruleMatch.xpath): locator
-    return await config.getterStrategies[ruleMatch.id]({locator: targetLocator, ruleMatch});
-  }
-  
-  throw new Error(`❌ Couldn't find a rule match for on element ${locator} \b html: ${html}`);
 }

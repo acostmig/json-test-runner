@@ -2,12 +2,11 @@ import { SetterStrategyType, RuleKeys } from "../config";
 
 //strategies used to set values in the UI (getter-setter-rules.ts determine which strategy will be used)
 
-
 const setterStrategies: Record<RuleKeys, SetterStrategyType> = {
-    "select": async ({ locator, ruleMatch, value }) => {
+    "select": async ({ locator, value }) => {
         await locator.selectOption({ label: value, value: value });
     },
-    "text": async ({ locator,ruleMatch, value }) => {
+    "text": async ({ locator, value }) => {
         await locator.fill(value ?? "");
     },
     "input.datepicker": async ({ locator, value }) => {

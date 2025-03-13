@@ -1,12 +1,12 @@
 import { expect } from "playwright/test";
 import { ActionTypeHandler } from "../config";
 import { setLocatorValue, getLocatorValue } from "../locator-actions";
-import { ActionType } from "../";
+import { ActionType } from "src/schemas/test-action";
 
 
 const actionTypeHandlers : Record<ActionType, ActionTypeHandler> = {
     "sleep": async (_, {value})=>{
-
+      
     },
     "navigate": async (_, { value }) => {
       if (value) {

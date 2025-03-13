@@ -1,5 +1,5 @@
 import { expect } from "@playwright/test";
-import { extendConfig } from "playwright-json-runner/config";
+import { extendConfig } from "playwright-json-runner";
 import {getLocatorValue, setLocatorValue} from "playwright-json-runner"
 
 const userConfig = extendConfig({
@@ -21,15 +21,15 @@ const userConfig = extendConfig({
   },
   //define when it applies
   rules: {
-    "myCustomInput": ({ xpathEval }) => xpathEval("//div[@contenteditable=true")
+    "contentEditableDiv": ({ xpathEval }) => xpathEval("//div[@contenteditable=true")
   },
   //strategy for getting the value used when actionTypeHandlers call setLocatorValue
   getterStrategies: {
-    "myCustomInput": async ({locator}) => await locator.inputValue()
+    "contentEditableDiv": async ({locator}) => await locator.inputValue()
   },
   //strategy for setting the value used when actionTypeHandlers call getLoctorvalue
   setterStrategies: {
-    "myCustomInput": async ({locator, value}) => await locator.fill(value??"")
+    "contentEditableDiv": async ({locator, value}) => await locator.fill(value??"")
   }
   
 });
