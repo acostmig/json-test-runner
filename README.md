@@ -79,7 +79,7 @@ By default:
 This file allows you to customize how json files are handled, where they live (directory and )
 
 ```ts
-import { extendConfig } from "playwright-json-runner/config";
+import { extendConfig } from "playwright-json-runner";
 
 const userConfig = extendConfig({
 
@@ -405,7 +405,7 @@ In your `playwright-json.config.ts`, you can add custom action types, selectors,
 
 ```ts
 import { expect } from "@playwright/test";
-import { extendConfig } from "playwright-json-runner/config";
+import { extendConfig } from "playwright-json-runner";
 import {getLocatorValue, setLocatorValue} from "playwright-json-runner"
 
 const userConfig = extendConfig({
@@ -509,7 +509,7 @@ This configuration and test example showcase how you can **extend and customize*
 
 ```ts
 import { expect } from "@playwright/test";
-import { Configuration, baseConfig } from "playwright-json-runner/config";
+import { Configuration, baseConfig } from "playwright-json-runner";
 import { getLocatorValue, setLocatorValue } from "playwright-json-runner";
 
 const userConfig: Configuration = {
