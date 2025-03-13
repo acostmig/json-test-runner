@@ -224,11 +224,8 @@ By defining custom locator strategies, tests become more **adaptive and resilien
 
 ## Adding Custom Playwright Interactions <a id="configure-custom-interactions"></a>
 
-### What are Custom Interactions?
-
-Custom interactions **override how elements are set or retrieved** when performing actions like **typing, clicking, or validating values**.
-
-### Why use Custom Interactions?
+extends SetFieldValue & GetFieldValue actions and any action that uses them.
+Custom interactions **override how element values are set or retrieved** they implement how we perform actions like **typing, clicking, or validating values**.
 
 - Provides **better control** over how Playwright interacts with UI elements.
 - Allows user to implement **how they handle** for non-standard elements.
@@ -236,16 +233,46 @@ Custom interactions **override how elements are set or retrieved** when performi
 
 **IMPORTANT**: rules order matters! notice how the new rule (often most complex) is defined on top, because whatever rule matches first, is the one that will be used
 
-  - default (```baseConig```) rule conditions (when each apply) [getter-setter-rules.ts](./packages//playwright-json-runner/src/defaults/getter-setter-rules.ts)
-  - default (```baseConig```) getter strategies [getter-strategies.ts](./packages//playwright-json-runner/src/defaults/getter-strategies.ts)
-  - default (```baseConig```) setter strategies [getter-strategies.ts](./packages//playwright-json-runner/src/defaults/setter-strategies.ts)
+  default rules and strategies already configured
+  -[getter-setter-rules.ts](./packages//playwright-json-runner/src/defaults/getter-setter-rules.ts)
+  -[getter-strategies.ts](./packages//playwright-json-runner/src/defaults/getter-strategies.ts)
+  -[setter-strategies.ts](./packages//playwright-json-runner/src/defaults/setter-strategies.ts)
+
+### Example: custom rules
+`xpathEval` is a function that evaluates an XPath expression within a locator's context.
+This allows users to dynamically resolve elements **relative to the resolved locator**, ensuring more flexible and adaptable test strategies.
+
+#### **HTML Structure**
+```html
+<body>
+  <div id="name">
+    <customInputTag></customInputTag>
+  </div>
+</body>
+```
+
+#### **JSON Configuration (Example Action for `setFieldValue`)**
+```json
+{
+  "selector": "[id='name']",
+  "type": "setFieldValue",
+  "value": "first name"
+}
+```
+
+#### **📌 How `xpathEval` Works Here**
+- The **locator** initially references the `div` (`id="name"`).
+- `xpathEval("//customInputTag")` **runs inside the `div`'s context**, returning the `<customInputTag>` element.
+- The `setFieldValue` action is **executed on `<customInputTag>`** instead of the `div` itself.
+
+
 
 ### Example: Custom Setter Strategy
 
 ```ts
 const userConfig = extendConfig({
   rules: {
-    "myCustomInput": ({ xpathEval }) => xpathEval("//div[@contenteditable=true]")
+    "contentEditableDiv": ({ xpathEval }) => xpathEval("//div[@contenteditable=true]")
   },
   setterStrategies: {
     "myCustomInput": async ({ locator, value }) => {
@@ -276,10 +303,10 @@ export default userConfig
 ```ts
 const userConfig = extendConfig({
   rules: {
-    "myCustomInput": ({ xpathEval }) => xpathEval("//div[@contenteditable=true]")
+    "contentEditableDiv": ({ xpathEval }) => xpathEval("//div[@contenteditable=true]")
   },
   getterStrategies: {
-    "myCustomInput": async ({ locator }) => {
+    "contentEditableDiv": async ({ locator }) => {
       return await locator.inputValue();
     }
   }
@@ -291,9 +318,9 @@ export default userConfig
 
 ## Summary
 
-- **Custom ActionTypes** enable extending JSON tests with new actions.
-- **Custom Selectors** improve UI element detection using dynamic XPath rules.
-- **Custom Playwright Interactions** allow advanced handling of special UI elements.
+- **Custom ActionTypes** extending JSON to handle new actions.
+- **Custom Locator Strategies** expands the way we find elements(locators) in the UI 
+- **Custom Playwright Interactions** expands how we interact with the elements (locators), good for handling special UI elements.
 
 By configuring these aspects, you **enhance test reliability and flexibility**, making it easier to automate complex UI behaviors with JSON-based Playwright tests.
 

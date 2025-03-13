@@ -8,8 +8,16 @@
  *    playwright-json-runner dump-json-schema <outputFile>
  */
 
-import { dumpSchema } from "..";
 import * as fs from "fs";
+import { testRunSchema } from "src/schemas/test-run";
+import zodToJsonSchema from "zod-to-json-schema";
+
+function dumpSchema() {
+  return zodToJsonSchema(testRunSchema, {
+    name: "TestRun",
+  });
+}
+
 
 (async function main() {
   const [, , command, outputFile] = process.argv;

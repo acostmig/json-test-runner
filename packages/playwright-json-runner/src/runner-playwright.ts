@@ -1,12 +1,9 @@
-import { Page, Locator } from "playwright";
-import { error } from "console";
-import { getConfiguration } from "./config";
+import { getConfiguration } from ".";
 import { test } from '@playwright/test'
 import { readFileSync } from "fs";
 import { globSync } from "glob";
-import { resolveLocator, TestAction, TestRun } from ".";
-
-
+import { TestRun } from ".";
+import { executeAction } from ".";
 
 function loadTestFiles() {
   const config = getConfiguration();
@@ -36,61 +33,9 @@ for (const testFilePath of jsonFiles) {
         console.log(`  🛠 Step: ${step.label ?? step.description}`);
 
         for (const action of step.actions) {
-
-          if (action.type === "navigate") {
-            await HandleActionTypeNavigate(action, page)
-            continue;
-          }
-          if (action.type === "sleep") {
-            if(!action.value)
-            {
-              throw error("Action type: sleep must have 'value' prop in MS")
-            }
-            await page.waitForTimeout(Number.parseInt(action.value));
-            continue;
-          }
-
-          console.log(`    - 🔹 Performing action: ` + (action.label ?? `${action.type}`));
-
-          if(action.selector)
-          {
-            action.locator = {
-              type: "selector",
-              value: action.selector
-            }
-          }
-          if (!action.locator) {
-              throw new Error(`Action must have a valid locator: ${JSON.stringify(action)}`);
-          }
-          const locator = await resolveLocator(config.locatorStrategies, page, action.locator);
-
-          await executeAction(locator, action);
+          await executeAction(config, page, action);
         }
       }
     })
-  }
-}
-
-async function executeAction(locator: Locator, action: TestAction) {
-  const config = await getConfiguration();
-  const handler = Object.entries(config.actionTypeHandlers).find(
-    ([key]) => key.toLowerCase() === action.type.toLowerCase()
-  )?.[1];
-
-  if (!handler) {
-    throw new Error(`No handler found for action type: ${action.type}`);
-  }
-  await handler(locator, action);
-
-}
-
-async function HandleActionTypeNavigate(action: TestAction, page: Page) {
-  if (action.value) {
-    console.log("navigating to: ", action.value)
-    await page.goto(action.value);
-  }
-
-  else {
-    throw error("navigate action requires the url to be provided as value");
   }
 }

@@ -40,7 +40,6 @@
       "require": "./dist/index.js",
       "default": "./dist/index.js"
     },
-    "./config": "./dist/config.js",
     "./runner-playwright": "./dist/runner-playwright.js",
     "./package.json": "./package.json"
   },

@@ -1,19 +1,20 @@
-import { LocatorStrategies, NestedLocatorStrategy, resolveLocator, RoleLocatorStrategy, SelectorLocatorStrategy, TestIdLocatorStrategy, TextLocatorStrategy } from "../";
+import { NestedStrategyParams, RoleStrategyParams, SelectorStrategyParams, TestIdStrategyParams, TextStrategyParams } from "src/schemas/locators/locator-parameters";
+import { LocatorStrategies, resolveLocator } from "../locator-resolver";
 
 const locatorStrategies: LocatorStrategies = {
-  selector: async (page, strategy: SelectorLocatorStrategy) => 
+  selector: async (page, strategy: SelectorStrategyParams) => 
     page.locator(strategy.value),
 
-  role: async (page, strategy: RoleLocatorStrategy) => 
+  role: async (page, strategy: RoleStrategyParams) => 
     page.getByRole(strategy.value.role, strategy.value.options ?? {}),
 
-  testId: async (page, strategy: TestIdLocatorStrategy) => 
+  testId: async (page, strategy: TestIdStrategyParams) => 
     page.getByTestId(strategy.value),
 
-  text: async (page, strategy: TextLocatorStrategy) => 
+  text: async (page, strategy: TextStrategyParams) => 
     page.getByText(strategy.value),
 
-  nested: async (page, strategy: NestedLocatorStrategy) => {
+  nested: async (page, strategy: NestedStrategyParams) => {
     const parentLocator = await resolveLocator(locatorStrategies, page, strategy.parent);
     const childLocator = await resolveLocator(locatorStrategies, page, strategy.child);
     return parentLocator.locator(childLocator);
