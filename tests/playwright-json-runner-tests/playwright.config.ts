@@ -2,7 +2,8 @@ import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
   use: {
-    headless: true
+    headless: true,
+    trace: 'on',
   },
   testDir: "tests",
   reporter: [ ['html', { open: 'never' }] ],

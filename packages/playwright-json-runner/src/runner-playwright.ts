@@ -21,20 +21,29 @@ function loadTestFiles() {
 const jsonFiles = loadTestFiles();;
 
 for (const testFilePath of jsonFiles) {
+
   const testRun: TestRun = JSON.parse(readFileSync(testFilePath, 'utf-8'));
   const config = getConfiguration();
 
   for (const scenario of testRun.scenarios) {
     test(scenario.label ?? scenario.name, async ({ page }) => {
+      let idx = 0;
       await page.goto(testRun.host);
       console.log(`📌 Executing scenario: ${scenario.label ?? scenario.name}`);
 
       for (const step of scenario.steps) {
         console.log(`  🛠 Step: ${step.label ?? step.description}`);
-
-        for (const action of step.actions) {
-          await executeAction(config, page, action);
-        }
+        await test.step(step.label ?? step.description, async () => {
+          for (const action of step.actions) {
+            try {
+              await page.evaluate((id) => console.log(`JSONIDX:${id}:START`), idx);
+              await executeAction(config, page, action);
+              await page.evaluate((id) => console.log(`JSONIDX:${id}:END`), idx);
+            } finally {
+              idx++;
+            }
+          }
+        });
       }
     })
   }
