@@ -1,24 +1,62 @@
-import { NestedStrategyParams, RoleStrategyParams, SelectorStrategyParams, TestIdStrategyParams, TextStrategyParams } from "src/schemas/locators/locator-parameters";
+import { LocatorParams } from "../schemas/locators/locator-parameters";
 import { LocatorStrategies, resolveLocator } from "../locator-resolver";
 
 const locatorStrategies: LocatorStrategies = {
-  selector: async (page, strategy: SelectorStrategyParams) => 
-    page.locator(strategy.value),
+  selector: async (page, params: LocatorParams) =>
+    page.locator((params as any).value),
 
-  role: async (page, strategy: RoleStrategyParams) => 
-    page.getByRole(strategy.value.role, strategy.value.options ?? {}),
+  xpath: async (page, params: LocatorParams) =>
+    page.locator((params as any).value),
 
-  testId: async (page, strategy: TestIdStrategyParams) => 
-    page.getByTestId(strategy.value),
+  role: async (page, params: LocatorParams) => {
+    const p = params as any;
+    return page.getByRole(p.role, {
+      name: p.name,
+      exact: p.exact,
+      checked: p.checked,
+      disabled: p.disabled,
+      expanded: p.expanded,
+      includeHidden: p.includeHidden,
+      level: p.level,
+      pressed: p.pressed,
+      selected: p.selected,
+    });
+  },
 
-  text: async (page, strategy: TextStrategyParams) => 
-    page.getByText(strategy.value),
+  text: async (page, params: LocatorParams) => {
+    const p = params as any;
+    return page.getByText(p.value, { exact: p.exact });
+  },
 
-  nested: async (page, strategy: NestedStrategyParams) => {
-    const parentLocator = await resolveLocator(locatorStrategies, page, strategy.parent);
-    const childLocator = await resolveLocator(locatorStrategies, page, strategy.child);
+  label: async (page, params: LocatorParams) => {
+    const p = params as any;
+    return page.getByLabel(p.value, { exact: p.exact });
+  },
+
+  placeholder: async (page, params: LocatorParams) => {
+    const p = params as any;
+    return page.getByPlaceholder(p.value, { exact: p.exact });
+  },
+
+  altText: async (page, params: LocatorParams) => {
+    const p = params as any;
+    return page.getByAltText(p.value, { exact: p.exact });
+  },
+
+  title: async (page, params: LocatorParams) => {
+    const p = params as any;
+    return page.getByTitle(p.value, { exact: p.exact });
+  },
+
+  testId: async (page, params: LocatorParams) =>
+    page.getByTestId((params as any).value),
+
+  nested: async (page, params: LocatorParams) => {
+    const p = params as any;
+    const parentLocator = await resolveLocator(locatorStrategies, page, p.parent);
+    const childLocator = await resolveLocator(locatorStrategies, page, p.child);
     return parentLocator.locator(childLocator);
   },
 };
-export default locatorStrategies
 
+export default locatorStrategies;

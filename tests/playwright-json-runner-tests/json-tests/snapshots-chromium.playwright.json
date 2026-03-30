@@ -1,0 +1,125 @@
+{
+  "driver": "Playwright",
+  "browser": "chrome",
+  "host": "https://playwright.dev",
+  "scenarios": [
+    {
+      "name": "Full-page snapshot - Chromium",
+      "steps": [
+        {
+          "description": "Snapshot homepage",
+          "actions": [
+            {
+              "action": "waitForLoadState",
+              "state": "networkidle"
+            },
+            {
+              "action": "assertSnapshot",
+              "name": "homepage-full-chromium.png",
+              "options": {
+                "fullPage": true,
+                "maxDiffPixelRatio": 0.05
+              }
+            }
+          ]
+        },
+        {
+          "description": "Snapshot hero element",
+          "actions": [
+            {
+              "action": "assertSnapshot",
+              "locator": { "by": "selector", "value": ".hero" },
+              "name": "hero-element-chromium.png",
+              "options": {
+                "maxDiffPixelRatio": 0.05
+              }
+            }
+          ]
+        },
+        {
+          "description": "Snapshot navbar",
+          "actions": [
+            {
+              "action": "assertSnapshot",
+              "locator": { "by": "selector", "value": ".navbar" },
+              "name": "navbar-chromium.png",
+              "options": {
+                "maxDiffPixelRatio": 0.05
+              }
+            }
+          ]
+        },
+        {
+          "description": "Snapshot viewport only (no fullPage)",
+          "actions": [
+            {
+              "action": "assertSnapshot",
+              "name": "homepage-viewport-chromium.png"
+            }
+          ]
+        },
+        {
+          "description": "Snapshot without options - auto name",
+          "actions": [
+            {
+              "action": "assertSnapshot"
+            }
+          ]
+        },
+        {
+          "description": "Snapshot without options - element",
+          "actions": [
+            {
+              "action": "assertSnapshot",
+              "locator": { "by": "selector", "value": ".hero" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Docs page snapshot - Chromium",
+      "steps": [
+        {
+          "description": "Navigate to installation docs",
+          "actions": [
+            {
+              "action": "navigate",
+              "url": "https://playwright.dev/docs/intro"
+            },
+            {
+              "action": "waitForLoadState",
+              "state": "networkidle"
+            }
+          ]
+        },
+        {
+          "description": "Snapshot docs full page",
+          "actions": [
+            {
+              "action": "assertSnapshot",
+              "name": "docs-intro-full-chromium.png",
+              "options": {
+                "fullPage": true,
+                "maxDiffPixelRatio": 0.05
+              }
+            }
+          ]
+        },
+        {
+          "description": "Snapshot docs article content",
+          "actions": [
+            {
+              "action": "assertSnapshot",
+              "locator": { "by": "selector", "value": "article" },
+              "name": "docs-article-chromium.png",
+              "options": {
+                "maxDiffPixelRatio": 0.05
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -10,28 +10,12 @@
           "description": "Navigate to create account",
           "actions": [
             {
-              "type": "Click",
-              "locator": {
-                "type": "role",
-                "value": {
-                  "role": "link",
-                  "options": {
-                    "name": "Sign in"
-                  }
-                }
-              }
+              "action": "click",
+              "locator": { "by": "role", "role": "link", "name": "Sign in" }
             },
             {
-              "type": "Click",
-              "locator": {
-                "type": "role",
-                "value": {
-                  "role": "link",
-                  "options": {
-                    "name": "Create an account"
-                  }
-                }
-              },
+              "action": "click",
+              "locator": { "by": "role", "role": "link", "name": "Create an account" },
               "label": "Click on Create an Account"
             }
           ]
@@ -40,55 +24,23 @@
           "description": "Fill the signup form",
           "actions": [
             {
-              "type": "SetFieldValue",
-              "locator": {
-                "type": "role",
-                "value": {
-                  "role": "textbox",
-                  "options": {
-                    "name": "Email"
-                  }
-                }
-              },
+              "action": "fill",
+              "locator": { "by": "role", "role": "textbox", "name": "Email" },
               "value": "playwright-json-runner@automategpt.com"
             },
             {
-              "type": "SetFieldValue",
-              "locator": {
-                "type": "role",
-                "value": {
-                  "role": "textbox",
-                  "options": {
-                    "name": "Password"
-                  }
-                }
-              },
+              "action": "fill",
+              "locator": { "by": "role", "role": "textbox", "name": "Password" },
               "value": "Some Password"
             },
             {
-              "type": "SetFieldValue",
-              "locator": {
-                "type": "role",
-                "value": {
-                  "role": "textbox",
-                  "options": {
-                    "name": "Username"
-                  }
-                }
-              },
+              "action": "fill",
+              "locator": { "by": "role", "role": "textbox", "name": "Username" },
               "value": "miguel_acosta"
             },
             {
-              "type": "Click",
-              "locator": {
-                "type": "role",
-                "value": {
-                  "role": "button",
-                  "options": {
-                    "name": "Create account"
-                  }
-                }
-              }
+              "action": "click",
+              "locator": { "by": "role", "role": "button", "name": "Create account" }
             }
           ]
         },
@@ -96,25 +48,17 @@
           "description": "Assertions",
           "actions": [
             {
-              "type": "assertFieldValueEquals",
-              "locator": {
-                "type": "role",
-                "value": {
-                  "role": "textbox",
-                  "options": {
-                    "name": "Email"
-                  }
-                }
-              },
+              "action": "assertValue",
+              "locator": { "by": "role", "role": "textbox", "name": "Email" },
               "value": "playwright-json-runner@automategpt.com"
             },
             {
-              "type": "sleep",
-              "value": "2000"
+              "action": "sleep",
+              "duration": 2000
             },
             {
-              "type": "sleep",
-              "value": "8000"
+              "action": "sleep",
+              "duration": 8000
             }
           ]
         }

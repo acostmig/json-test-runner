@@ -1,0 +1,63 @@
+{
+  "driver": "Playwright",
+  "browser": "chrome",
+  "host": "https://playwright.dev",
+  "scenarios": [
+    {
+      "name": "Playwright Docs Site",
+      "steps": [
+        {
+          "description": "Check homepage",
+          "actions": [
+            {
+              "action": "assertTitle",
+              "value": "Fast and reliable end-to-end testing for modern web apps | Playwright"
+            },
+            {
+              "action": "assertVisible",
+              "locator": { "by": "role", "role": "link", "name": "Get started" },
+              "label": "Get started link is visible"
+            }
+          ]
+        },
+        {
+          "description": "Navigate to docs",
+          "actions": [
+            {
+              "action": "click",
+              "locator": { "by": "role", "role": "link", "name": "Get started" }
+            },
+            {
+              "action": "waitForLoadState",
+              "state": "networkidle"
+            },
+            {
+              "action": "assertContainsText",
+              "locator": { "by": "selector", "value": "h1" },
+              "value": "Installation"
+            }
+          ]
+        },
+        {
+          "description": "Search the docs",
+          "actions": [
+            {
+              "action": "click",
+              "locator": { "by": "role", "role": "button", "name": "Search" }
+            },
+            {
+              "action": "fill",
+              "locator": { "by": "role", "role": "searchbox" },
+              "value": "locator"
+            },
+            {
+              "action": "assertVisible",
+              "locator": { "by": "selector", "value": ".DocSearch-Dropdown" },
+              "label": "Search results visible"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
