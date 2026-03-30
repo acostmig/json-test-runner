@@ -50,7 +50,16 @@
           ]
         },
         {
-          "description": "Snapshot without options - full page",
+          "description": "Snapshot viewport only (no fullPage)",
+          "actions": [
+            {
+              "action": "assertSnapshot",
+              "name": "homepage-viewport-chromium.png"
+            }
+          ]
+        },
+        {
+          "description": "Snapshot without options - auto name",
           "actions": [
             {
               "action": "assertSnapshot"
