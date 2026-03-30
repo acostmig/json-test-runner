@@ -1,92 +1,115 @@
 import { z } from "zod";
 import { PlaywrightRoleOptionsSchema, PlaywrightRoleSchema } from "./playwright-schema-fork";
 
+// ── Concrete locator schemas ────────────────────────────────────────────────
 
-/** Selector strategy */
-export const selectorStrategyParamsSchema = z.object({
-  type: z.literal("selector"),
+export const selectorLocatorSchema = z.object({
+  by: z.literal("selector"),
+  value: z.string().describe("CSS selector"),
+});
+
+export const xpathLocatorSchema = z.object({
+  by: z.literal("xpath"),
+  value: z.string().describe("XPath expression"),
+});
+
+export const roleLocatorSchema = z.object({
+  by: z.literal("role"),
+  role: PlaywrightRoleSchema,
+  name: z.union([z.string(), z.instanceof(RegExp)]).optional(),
+  exact: z.boolean().optional(),
+  checked: z.boolean().optional(),
+  disabled: z.boolean().optional(),
+  expanded: z.boolean().optional(),
+  includeHidden: z.boolean().optional(),
+  level: z.number().optional(),
+  pressed: z.boolean().optional(),
+  selected: z.boolean().optional(),
+});
+
+export const textLocatorSchema = z.object({
+  by: z.literal("text"),
+  value: z.string(),
+  exact: z.boolean().optional(),
+});
+
+export const labelLocatorSchema = z.object({
+  by: z.literal("label"),
+  value: z.string(),
+  exact: z.boolean().optional(),
+});
+
+export const placeholderLocatorSchema = z.object({
+  by: z.literal("placeholder"),
+  value: z.string(),
+  exact: z.boolean().optional(),
+});
+
+export const altTextLocatorSchema = z.object({
+  by: z.literal("altText"),
+  value: z.string(),
+  exact: z.boolean().optional(),
+});
+
+export const titleLocatorSchema = z.object({
+  by: z.literal("title"),
+  value: z.string(),
+  exact: z.boolean().optional(),
+});
+
+export const testIdLocatorSchema = z.object({
+  by: z.literal("testId"),
   value: z.string(),
 });
-export type SelectorStrategyParams = z.infer<typeof selectorStrategyParamsSchema>;
 
+// ── Recursive nested locator ────────────────────────────────────────────────
 
-/** Role strategy */
-export const roleStrategyParamsSchema = z.object({
-  type: z.literal("role"),
-  value: z.object({
-    role: PlaywrightRoleSchema,
-    options: PlaywrightRoleOptionsSchema,
-  }).describe("the values for role are role name and then optiosn object e.g. {value: {role: 'link', options: {name: 'sign on'}}}"),
-});
+export type LocatorParams =
+  | z.infer<typeof selectorLocatorSchema>
+  | z.infer<typeof xpathLocatorSchema>
+  | z.infer<typeof roleLocatorSchema>
+  | z.infer<typeof textLocatorSchema>
+  | z.infer<typeof labelLocatorSchema>
+  | z.infer<typeof placeholderLocatorSchema>
+  | z.infer<typeof altTextLocatorSchema>
+  | z.infer<typeof titleLocatorSchema>
+  | z.infer<typeof testIdLocatorSchema>
+  | { by: "nested"; parent: LocatorParams; child: LocatorParams }
+  | { by: string; value?: string }; // custom strategies
 
-export type RoleStrategyParams = z.infer<typeof roleStrategyParamsSchema>;
+let locatorParamsSchema: z.ZodType<LocatorParams>;
 
-
-/** Test ID strategy */
-export const testIdStrategyParamsSchema = z.object({
-  type: z.literal("testId"),
-  value: z.string(),
-});
-export type TestIdStrategyParams = z.infer<typeof testIdStrategyParamsSchema>;
-
-/** Text strategy */
-export const textStrategyParamsSchema = z.object({
-  type: z.literal("text"),
-  value: z.string(),
-});
-export type TextStrategyParams = z.infer<typeof textStrategyParamsSchema>;
-
-
-/**
- * 1) First define the TypeScript union type manually.
- *    This represents the union of all strategies, including the "nested" type
- *    that references itself recursively.
- */
-export type LocatorStrategyParams =
-  | z.infer<typeof selectorStrategyParamsSchema>
-  | z.infer<typeof roleStrategyParamsSchema>
-  | z.infer<typeof testIdStrategyParamsSchema>
-  | z.infer<typeof textStrategyParamsSchema>
-  | {
-      type: "nested";
-      parent: LocatorStrategyParams;
-      child: LocatorStrategyParams;
-    };
-
-/**
- * 2) Next, declare a mutable schema variable that we’ll assign after
- *    creating the lazy references.
- */
-let locatorParamsSchema: z.ZodType<LocatorStrategyParams>;
-
-/**
- * 3) Define the nested locator strategy schema. We use z.lazy to handle
- *    the self-referencing union.
- */
-export const nestedStrategyParamsSchema = z.lazy(() =>
+export const nestedLocatorSchema = z.lazy(() =>
   z.object({
-    type: z.literal("nested"),
+    by: z.literal("nested"),
     parent: locatorParamsSchema,
     child: locatorParamsSchema,
   })
 );
-export type NestedStrategyParams = z.infer<typeof nestedStrategyParamsSchema>;
+export type NestedLocatorParams = z.infer<typeof nestedLocatorSchema>;
 
+const customLocatorSchema = z.object({
+  by: z.string(),
+  value: z.string().optional(),
+});
 
-/**
- * 4) Finally, assign the union of all individual schemas plus
- *    the nested schema to `locatorParamsSchema`.
- */
 locatorParamsSchema = z.union([
-  selectorStrategyParamsSchema,
-  roleStrategyParamsSchema,
-  testIdStrategyParamsSchema,
-  textStrategyParamsSchema,
-  nestedStrategyParamsSchema,
+  z.discriminatedUnion("by", [
+    selectorLocatorSchema,
+    xpathLocatorSchema,
+    roleLocatorSchema,
+    textLocatorSchema,
+    labelLocatorSchema,
+    placeholderLocatorSchema,
+    altTextLocatorSchema,
+    titleLocatorSchema,
+    testIdLocatorSchema,
+  ]),
+  nestedLocatorSchema,
+  customLocatorSchema,
 ]);
 
-/**
- * Export the fully built schema and
- * the TypeScript type that is inferred from it.
- */
 export { locatorParamsSchema };
+
+// Legacy role options export kept for backward compat with playwright-schema-fork consumers
+export { PlaywrightRoleOptionsSchema, PlaywrightRoleSchema };

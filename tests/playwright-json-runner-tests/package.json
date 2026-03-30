@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "test": "playwright test --project=Json-runner",
+    "test:ui": "playwright test --project=Json-runner --headed --ui",
     "link-runner": "npm link ../../packages/playwright-json-runner",
     "install-runner": "npm --prefix ../../packages/playwright-json-runner run build-pack && npm uninstall npm u playwright-json-runner && npm i ../../packages/playwright-json-runner/playwright-json-runner-1.0.0.tgz "
   },

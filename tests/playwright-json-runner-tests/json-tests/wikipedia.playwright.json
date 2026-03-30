@@ -1,0 +1,64 @@
+{
+  "driver": "Playwright",
+  "browser": "chrome",
+  "host": "https://en.wikipedia.org",
+  "scenarios": [
+    {
+      "name": "Wikipedia Search and Navigate",
+      "steps": [
+        {
+          "description": "Search for Playwright",
+          "actions": [
+            {
+              "action": "fill",
+              "locator": { "by": "selector", "value": "#searchform input[name='search']" },
+              "value": "Playwright"
+            },
+            {
+              "action": "press",
+              "locator": { "by": "selector", "value": "#searchform input[name='search']" },
+              "key": "Enter"
+            },
+            {
+              "action": "waitForLoadState",
+              "state": "networkidle"
+            }
+          ]
+        },
+        {
+          "description": "Assert article page loaded",
+          "actions": [
+            {
+              "action": "assertVisible",
+              "locator": { "by": "selector", "value": "#firstHeading" },
+              "label": "Page heading visible"
+            },
+            {
+              "action": "assertContainsText",
+              "locator": { "by": "selector", "value": "#firstHeading" },
+              "value": "Playwright"
+            },
+            {
+              "action": "assertURL",
+              "value": "https://en.wikipedia.org/wiki/Playwright"
+            }
+          ]
+        },
+        {
+          "description": "Navigate back to home via logo",
+          "actions": [
+            {
+              "action": "click",
+              "locator": { "by": "selector", "value": ".mw-logo" },
+              "label": "Click Wikipedia logo"
+            },
+            {
+              "action": "assertURL",
+              "value": "https://en.wikipedia.org/wiki/Main_Page"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
