@@ -1,4 +1,5 @@
 import { cosmiconfigSync } from "cosmiconfig";
+import path from "path";
 import { Locator, Page } from "playwright";
 import actionTypeHandlers from "./defaults/action-type-handlers";
 import locatorStrategies from "./defaults/locator-strategies";
@@ -13,6 +14,17 @@ export interface ActionContext {
 export type ActionTypeHandler = (context: ActionContext, action: TestAction) => Promise<void>;
 
 export interface Configuration<TActionType extends string = string> {
+  /**
+   * Absolute path to the directory containing the playwright-json config file.
+   * Resolved automatically — do not set manually.
+   * @internal
+   */
+  configDir?: string;
+  /**
+   * Directory where visual-regression snapshots are stored.
+   * Defaults to `snapshots` (resolved relative to `configDir`).
+   */
+  snapshotDir: string;
   /**
    * Directory that will be recursively scanned for test files.
    * Defaults to `json-tests`.
@@ -59,6 +71,7 @@ export interface Configuration<TActionType extends string = string> {
 }
 
 export const baseConfig: Configuration = {
+  snapshotDir: "snapshots",
   jsonTestDir: "json-tests",
   jsonTestMatch: `**/*.playwright.json`,
   locatorStrategies,
@@ -117,7 +130,9 @@ export function loadConfiguration(): Configuration {
     if (explorer) {
       const result = explorer.search();
       if (result && result.config) {
-        return result.config.default ?? result.config;
+        const userConfig: Configuration = result.config.default ?? result.config;
+        userConfig.configDir = path.dirname(result.filepath);
+        return userConfig;
       }
     }
     return baseConfig;
@@ -126,3 +141,4 @@ export function loadConfiguration(): Configuration {
     return baseConfig;
   }
 }
+
