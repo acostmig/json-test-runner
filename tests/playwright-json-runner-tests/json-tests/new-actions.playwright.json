@@ -1,0 +1,125 @@
+{
+  "driver": "Playwright",
+  "browser": "chrome",
+  "host": "https://playwright.dev",
+  "scenarios": [
+    {
+      "name": "scroll, waitForText, waitForHidden, waitForSelector, clickCoordinates",
+      "steps": [
+        {
+          "description": "Wait for page text and selector",
+          "actions": [
+            {
+              "action": "waitForLoadState",
+              "state": "networkidle"
+            },
+            {
+              "action": "waitForText",
+              "value": "Get started",
+              "label": "Wait for 'Get started' text to appear"
+            },
+            {
+              "action": "waitForSelector",
+              "locator": { "by": "selector", "value": ".hero" },
+              "label": "Wait for hero section to be visible"
+            }
+          ]
+        },
+        {
+          "description": "Scroll the page down and back up",
+          "actions": [
+            {
+              "action": "scroll",
+              "deltaX": 0,
+              "deltaY": 500,
+              "label": "Scroll down 500px"
+            },
+            {
+              "action": "sleep",
+              "duration": 500
+            },
+            {
+              "action": "scroll",
+              "deltaX": 0,
+              "deltaY": -500,
+              "label": "Scroll back up 500px"
+            },
+            {
+              "action": "sleep",
+              "duration": 500
+            }
+          ]
+        },
+        {
+          "description": "Click coordinates on Get started link and verify navigation",
+          "actions": [
+            {
+              "action": "assertVisible",
+              "locator": { "by": "role", "role": "link", "name": "Get started" }
+            },
+            {
+              "action": "click",
+              "locator": { "by": "role", "role": "link", "name": "Get started" }
+            },
+            {
+              "action": "waitForLoadState",
+              "state": "networkidle"
+            },
+            {
+              "action": "assertContainsText",
+              "locator": { "by": "selector", "value": "h1" },
+              "value": "Installation"
+            }
+          ]
+        },
+        {
+          "description": "Open and close search to test waitForHidden",
+          "actions": [
+            {
+              "action": "click",
+              "locator": { "by": "role", "role": "button", "name": "Search" },
+              "label": "Open search dialog"
+            },
+            {
+              "action": "waitForSelector",
+              "locator": { "by": "selector", "value": ".DocSearch-Modal" },
+              "label": "Wait for search modal to be visible"
+            },
+            {
+              "action": "press",
+              "locator": { "by": "selector", "value": ".DocSearch-Input" },
+              "key": "Escape",
+              "label": "Close search with Escape"
+            },
+            {
+              "action": "waitForHidden",
+              "locator": { "by": "selector", "value": ".DocSearch-Modal" },
+              "label": "Wait for search modal to disappear"
+            }
+          ]
+        },
+        {
+          "description": "Use clickCoordinates to click the page",
+          "actions": [
+            {
+              "action": "clickCoordinates",
+              "x": 640,
+              "y": 50,
+              "label": "Click near top-center of page"
+            },
+            {
+              "action": "sleep",
+              "duration": 300
+            },
+            {
+              "action": "assertContainsText",
+              "locator": { "by": "selector", "value": "h1" },
+              "value": "Installation",
+              "label": "Page still on docs after coordinate click"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

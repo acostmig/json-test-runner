@@ -27,6 +27,29 @@ const actionTypeHandlers: Record<string, ActionTypeHandler> = {
     await page.waitForURL(a.url, a.options);
   },
 
+  goBack: async ({ page }, action: TestAction) => {
+    await page.goBack((action as any).options);
+  },
+
+  goForward: async ({ page }, action: TestAction) => {
+    await page.goForward((action as any).options);
+  },
+
+  scroll: async ({ page }, action: TestAction) => {
+    const a = action as any;
+    await page.mouse.wheel(a.deltaX, a.deltaY);
+  },
+
+  waitForText: async ({ page }, action: TestAction) => {
+    const a = action as any;
+    await page.getByText(a.value).waitFor(a.options);
+  },
+
+  clickCoordinates: async ({ page }, action: TestAction) => {
+    const a = action as any;
+    await page.mouse.click(a.x, a.y, a.options);
+  },
+
   waitForLoadState: async ({ page }, action: TestAction) => {
     const a = action as any;
     await page.waitForLoadState(a.state, a.options);
@@ -136,6 +159,16 @@ const actionTypeHandlers: Record<string, ActionTypeHandler> = {
     const locator = requireLocator(context, "waitFor");
     const a = action as any;
     await locator.waitFor({ state: a.state, ...a.options });
+  },
+
+  waitForHidden: async (context, action: TestAction) => {
+    const locator = requireLocator(context, "waitForHidden");
+    await locator.waitFor({ state: "hidden", ...(action as any).options });
+  },
+
+  waitForSelector: async (context, action: TestAction) => {
+    const locator = requireLocator(context, "waitForSelector");
+    await locator.waitFor({ state: "visible", ...(action as any).options });
   },
 
   // ── Assertions ────────────────────────────────────────────────────────────
