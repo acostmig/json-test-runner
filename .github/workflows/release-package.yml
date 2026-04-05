@@ -20,23 +20,36 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '23'
           cache: 'npm'
           cache-dependency-path: packages/playwright-json-runner/package-lock.json
 
-      - name: Configure npm for OIDC
-        run: npm config set registry https://registry.npmjs.org/
+      - name: Validate version
+        working-directory: packages/playwright-json-runner
+        run: |
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          PKG_NAME=$(node -p "require('./package.json').name")
+          echo "Package: $PKG_NAME@$PKG_VERSION"
+
+          # Check version is not the default 1.0.0
+          if [ "$PKG_VERSION" = "1.0.0" ]; then
+            echo "::error::Version 1.0.0 is the default — update the version in package.json before publishing."
+            exit 1
+          fi
+
+          # Check version is not already published
+          if npm view "$PKG_NAME@$PKG_VERSION" version 2>/dev/null; then
+            echo "::error::Version $PKG_VERSION is already published to npm."
+            exit 1
+          fi
+
+          echo "VERSION=$PKG_VERSION" >> "$GITHUB_ENV"
+          echo "✅ Version $PKG_VERSION is valid and not yet published."
+        shell: bash
 
       - name: Install dependencies
         working-directory: packages/playwright-json-runner
         run: npm ci
-
-      - name: Extract version from Git tag
-        working-directory: packages/playwright-json-runner
-        run: |
-          VERSION=${GITHUB_REF#refs/tags/v}
-          npm version $VERSION --no-git-tag-version
-        shell: bash
 
       - name: Build package
         working-directory: packages/playwright-json-runner
