@@ -24,6 +24,11 @@ jobs:
           cache: 'npm'
           cache-dependency-path: packages/playwright-json-runner/package-lock.json
 
+      - name: Upgrade npm for OIDC trusted publishing
+        run: |
+          npm install -g npm@latest
+          echo "npm version: $(npm --version)"
+
       - name: Validate version
         working-directory: packages/playwright-json-runner
         run: |
@@ -37,14 +42,28 @@ jobs:
             exit 1
           fi
 
-          # Check version is not already published
-          if npm view "$PKG_NAME@$PKG_VERSION" version 2>/dev/null; then
+          # Check version is not already published and is greater than current
+          CURRENT=$(npm view "$PKG_NAME" version 2>/dev/null || echo "0.0.0")
+          echo "Current published version: $CURRENT"
+
+          if [ "$PKG_VERSION" = "$CURRENT" ]; then
             echo "::error::Version $PKG_VERSION is already published to npm."
             exit 1
           fi
 
+          HIGHER=$(node -e "
+            const semver = (v) => v.split('.').map(Number);
+            const [a, b] = [semver('$PKG_VERSION'), semver('$CURRENT')];
+            const gt = a[0] > b[0] || (a[0] === b[0] && a[1] > b[1]) || (a[0] === b[0] && a[1] === b[1] && a[2] > b[2]);
+            process.exit(gt ? 0 : 1);
+          ")
+          if [ $? -ne 0 ]; then
+            echo "::error::Version $PKG_VERSION is not greater than current published version $CURRENT."
+            exit 1
+          fi
+
           echo "VERSION=$PKG_VERSION" >> "$GITHUB_ENV"
-          echo "✅ Version $PKG_VERSION is valid and not yet published."
+          echo "✅ Version $PKG_VERSION is valid (current: $CURRENT)."
         shell: bash
 
       - name: Install dependencies
