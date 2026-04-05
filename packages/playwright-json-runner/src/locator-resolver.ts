@@ -13,5 +13,9 @@ export async function resolveLocator(
   if (!handler) {
     throw new Error(`No locator strategy found for by="${params.by}". Register it in your config's locatorStrategies.`);
   }
-  return handler(page, params);
+  let locator = await handler(page, params);
+  if (params.nth !== undefined) {
+    locator = locator.nth(params.nth);
+  }
+  return locator;
 }

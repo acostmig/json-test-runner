@@ -47,6 +47,20 @@ const waitForURLActionSchema = base.extend({
     .optional(),
 });
 
+const goBackActionSchema = base.extend({
+  action: z.literal("goBack"),
+  options: z
+    .object({ timeout: z.number().optional(), waitUntil: waitUntilEnum.optional() })
+    .optional(),
+});
+
+const goForwardActionSchema = base.extend({
+  action: z.literal("goForward"),
+  options: z
+    .object({ timeout: z.number().optional(), waitUntil: waitUntilEnum.optional() })
+    .optional(),
+});
+
 const waitForLoadStateActionSchema = base.extend({
   action: z.literal("waitForLoadState"),
   state: loadStateEnum.optional(),
@@ -63,6 +77,36 @@ const assertTitleActionSchema = base.extend({
   action: z.literal("assertTitle"),
   value: z.string(),
   options: timeoutOpts,
+});
+
+const scrollActionSchema = base.extend({
+  action: z.literal("scroll"),
+  deltaX: z.number().describe("Horizontal scroll pixels"),
+  deltaY: z.number().describe("Vertical scroll pixels"),
+});
+
+const waitForTextActionSchema = base.extend({
+  action: z.literal("waitForText"),
+  value: z.string(),
+  options: z
+    .object({
+      timeout: z.number().optional(),
+      state: waitForStateEnum.optional(),
+    })
+    .optional(),
+});
+
+const clickCoordinatesActionSchema = base.extend({
+  action: z.literal("clickCoordinates"),
+  x: z.number(),
+  y: z.number(),
+  options: z
+    .object({
+      button: z.enum(["left", "middle", "right"]).optional(),
+      clickCount: z.number().optional(),
+      delay: z.number().optional(),
+    })
+    .optional(),
 });
 
 // screenshot: page-level when locator is omitted
@@ -188,6 +232,16 @@ const waitForActionSchema = withLocator.extend({
   options: timeoutOpts,
 });
 
+const waitForHiddenActionSchema = withLocator.extend({
+  action: z.literal("waitForHidden"),
+  options: timeoutOpts,
+});
+
+const waitForSelectorActionSchema = withLocator.extend({
+  action: z.literal("waitForSelector"),
+  options: timeoutOpts,
+});
+
 // ── Assertion actions ───────────────────────────────────────────────────────
 
 const assertVisibleSchema = withLocator.extend({
@@ -266,8 +320,13 @@ const customActionSchema = base
 const knownActionsSchema = z.discriminatedUnion("action", [
   navigateActionSchema,
   sleepActionSchema,
+  goBackActionSchema,
+  goForwardActionSchema,
+  scrollActionSchema,
   waitForURLActionSchema,
   waitForLoadStateActionSchema,
+  waitForTextActionSchema,
+  clickCoordinatesActionSchema,
   assertURLActionSchema,
   assertTitleActionSchema,
   screenshotActionSchema,
@@ -286,6 +345,8 @@ const knownActionsSchema = z.discriminatedUnion("action", [
   clearActionSchema,
   scrollIntoViewActionSchema,
   waitForActionSchema,
+  waitForHiddenActionSchema,
+  waitForSelectorActionSchema,
   assertVisibleSchema,
   assertHiddenSchema,
   assertEnabledSchema,

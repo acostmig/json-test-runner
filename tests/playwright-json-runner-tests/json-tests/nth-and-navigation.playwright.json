@@ -1,0 +1,81 @@
+{
+  "driver": "Playwright",
+  "browser": "chrome",
+  "host": "https://playwright.dev",
+  "scenarios": [
+    {
+      "name": "nth locator and navigation actions",
+      "steps": [
+        {
+          "description": "Check homepage loads",
+          "actions": [
+            {
+              "action": "waitForLoadState",
+              "state": "networkidle"
+            },
+            {
+              "action": "assertTitle",
+              "value": "Fast and reliable end-to-end testing for modern web apps | Playwright"
+            }
+          ]
+        },
+        {
+          "description": "Use nth to target a specific navbar link",
+          "actions": [
+            {
+              "action": "assertVisible",
+              "locator": { "by": "role", "role": "link", "name": "Docs", "nth": 0 },
+              "label": "First 'Docs' link is visible"
+            },
+            {
+              "action": "click",
+              "locator": { "by": "role", "role": "link", "name": "Docs", "nth": 0 }
+            },
+            {
+              "action": "waitForLoadState",
+              "state": "networkidle"
+            },
+            {
+              "action": "assertContainsText",
+              "locator": { "by": "selector", "value": "h1" },
+              "value": "Installation"
+            }
+          ]
+        },
+        {
+          "description": "Go back to homepage",
+          "actions": [
+            {
+              "action": "goBack"
+            },
+            {
+              "action": "waitForLoadState",
+              "state": "networkidle"
+            },
+            {
+              "action": "assertTitle",
+              "value": "Fast and reliable end-to-end testing for modern web apps | Playwright"
+            }
+          ]
+        },
+        {
+          "description": "Go forward to docs page",
+          "actions": [
+            {
+              "action": "goForward"
+            },
+            {
+              "action": "waitForLoadState",
+              "state": "networkidle"
+            },
+            {
+              "action": "assertContainsText",
+              "locator": { "by": "selector", "value": "h1" },
+              "value": "Installation"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
