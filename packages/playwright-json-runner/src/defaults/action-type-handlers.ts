@@ -1,5 +1,6 @@
 import { expect } from "@playwright/test";
 import { ActionContext, ActionTypeHandler } from "../config";
+import { setLocatorValue, getLocatorValue } from "../locator-actions";
 import { TestAction } from "../schemas/test-action";
 
 function requireLocator(context: ActionContext, actionName: string) {
@@ -169,6 +170,28 @@ const actionTypeHandlers: Record<string, ActionTypeHandler> = {
   waitForSelector: async (context, action: TestAction) => {
     const locator = requireLocator(context, "waitForSelector");
     await locator.waitFor({ state: "visible", ...(action as any).options });
+  },
+
+  // ── Field value actions ───────────────────────────────────────────────────
+
+  setFieldValue: async (context, action: TestAction) => {
+    const locator = requireLocator(context, "setFieldValue");
+    const a = action as any;
+    await setLocatorValue(locator, a.value);
+  },
+
+  assertFieldValueEquals: async (context, action: TestAction) => {
+    const locator = requireLocator(context, "assertFieldValueEquals");
+    const a = action as any;
+    const actual = await getLocatorValue(locator);
+    expect(actual).toBe(a.value);
+  },
+
+  assertFieldValueContains: async (context, action: TestAction) => {
+    const locator = requireLocator(context, "assertFieldValueContains");
+    const a = action as any;
+    const actual = await getLocatorValue(locator);
+    expect(actual).toContain(a.value);
   },
 
   // ── Assertions ────────────────────────────────────────────────────────────

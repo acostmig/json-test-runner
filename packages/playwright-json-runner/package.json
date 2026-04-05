@@ -1,6 +1,6 @@
 {
   "name": "playwright-json-runner",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "Extends Playwright to run tests using JSON-based test definitions.",
   "module": "dist/index.js",
   "repository": {
@@ -14,16 +14,16 @@
     "dev": "tsup --watch",
     "dump-schema": "ts-node src/scripts/cli.ts dump-json-schema schema.local.json"
   },
- "keywords": [
-  "playwright",
-  "test-runner",
-  "automation",
-  "json",
-  "testing",
-  "e2e",
-  "end-to-end",
-  "headless",
-  "browser-testing"
+  "keywords": [
+    "playwright",
+    "test-runner",
+    "automation",
+    "json",
+    "testing",
+    "e2e",
+    "end-to-end",
+    "headless",
+    "browser-testing"
   ],
   "author": "Miguel Acosta",
   "license": "ISC",
@@ -56,6 +56,7 @@
   ],
   "devDependencies": {
     "@playwright/test": "^1.50.1",
+    "@types/jsdom": "^28.0.1",
     "@types/node": "^22.13.5",
     "ts-node": "^10.9.2",
     "tsup": "^8.3.6",
@@ -64,6 +65,7 @@
   "dependencies": {
     "cosmiconfig": "^9.0.0",
     "glob": "^11.0.1",
+    "jsdom": "^29.0.1",
     "zod": "^3.24.2",
     "zod-to-json-schema": "^3.24.3"
   }
