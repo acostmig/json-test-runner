@@ -3,7 +3,7 @@ name: Release npm Package
 on:
   push:
     tags:
-      - "v*"  # Trigger only when a version tag (e.g., v1.0.1) is pushed
+      - "v*"
 
 jobs:
   publish:
@@ -11,7 +11,7 @@ jobs:
 
     permissions:
       contents: read
-      id-token: write  # Required for npm OIDC Trusted Publishing
+      id-token: write
 
     steps:
       - name: Checkout repository
@@ -20,10 +20,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22.14'
-          registry-url: 'https://registry.npmjs.org/'
+          node-version: '22'
           cache: 'npm'
           cache-dependency-path: packages/playwright-json-runner/package-lock.json
+
+      - name: Configure npm for OIDC
+        run: npm config set registry https://registry.npmjs.org/
 
       - name: Install dependencies
         working-directory: packages/playwright-json-runner
@@ -32,7 +34,7 @@ jobs:
       - name: Extract version from Git tag
         working-directory: packages/playwright-json-runner
         run: |
-          VERSION=${GITHUB_REF#refs/tags/v}  # Extract '1.0.1' from 'v1.0.1'
+          VERSION=${GITHUB_REF#refs/tags/v}
           npm version $VERSION --no-git-tag-version
         shell: bash
 
