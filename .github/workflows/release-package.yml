@@ -25,9 +25,6 @@ jobs:
           cache: 'npm'
           cache-dependency-path: packages/playwright-json-runner/package-lock.json
 
-      - name: Ensure latest npm
-        run: npm install -g npm@latest
-
       - name: Install dependencies
         working-directory: packages/playwright-json-runner
         run: npm ci
