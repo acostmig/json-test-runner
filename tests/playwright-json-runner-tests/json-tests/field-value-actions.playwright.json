@@ -1,0 +1,47 @@
+{
+  "host": "https://playwright.dev/",
+  "scenarios": [
+    {
+      "name": "Field value actions on search input",
+      "steps": [
+        {
+          "description": "Open search and set field value",
+          "actions": [
+            {
+              "action": "navigate",
+              "url": "https://playwright.dev/"
+            },
+            {
+              "action": "waitForLoadState",
+              "state": "domcontentloaded"
+            },
+            {
+              "action": "click",
+              "locator": { "by": "role", "role": "button", "name": "Search" }
+            },
+            {
+              "action": "setFieldValue",
+              "locator": { "by": "placeholder", "value": "Search docs" },
+              "value": "locator"
+            },
+            {
+              "action": "assertFieldValueEquals",
+              "locator": { "by": "placeholder", "value": "Search docs" },
+              "value": "locator"
+            },
+            {
+              "action": "setFieldValue",
+              "locator": { "by": "placeholder", "value": "Search docs" },
+              "value": "locator click"
+            },
+            {
+              "action": "assertFieldValueContains",
+              "locator": { "by": "placeholder", "value": "Search docs" },
+              "value": "click"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

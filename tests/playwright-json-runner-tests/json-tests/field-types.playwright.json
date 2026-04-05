@@ -1,0 +1,211 @@
+{
+  "host": "file:///C:/dev/json-test-runner/tests/playwright-json-runner-tests/fixtures/field-types.html",
+  "scenarios": [
+    {
+      "name": "Text input - set and assert value",
+      "steps": [
+        {
+          "description": "Set and verify text input",
+          "actions": [
+            {
+              "action": "navigate",
+              "url": "file:///C:/dev/json-test-runner/tests/playwright-json-runner-tests/fixtures/field-types.html"
+            },
+            {
+              "action": "waitForLoadState",
+              "state": "domcontentloaded"
+            },
+            {
+              "action": "setFieldValue",
+              "locator": { "by": "selector", "value": "#username" },
+              "value": "john_doe"
+            },
+            {
+              "action": "assertFieldValueEquals",
+              "locator": { "by": "selector", "value": "#username" },
+              "value": "john_doe"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Textarea - set and assert value",
+      "steps": [
+        {
+          "description": "Set and verify textarea",
+          "actions": [
+            {
+              "action": "navigate",
+              "url": "file:///C:/dev/json-test-runner/tests/playwright-json-runner-tests/fixtures/field-types.html"
+            },
+            {
+              "action": "waitForLoadState",
+              "state": "domcontentloaded"
+            },
+            {
+              "action": "setFieldValue",
+              "locator": { "by": "selector", "value": "#bio" },
+              "value": "Hello world bio"
+            },
+            {
+              "action": "assertFieldValueEquals",
+              "locator": { "by": "selector", "value": "#bio" },
+              "value": "Hello world bio"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Checkbox - check and assert",
+      "steps": [
+        {
+          "description": "Check a checkbox and verify its state",
+          "actions": [
+            {
+              "action": "navigate",
+              "url": "file:///C:/dev/json-test-runner/tests/playwright-json-runner-tests/fixtures/field-types.html"
+            },
+            {
+              "action": "waitForLoadState",
+              "state": "domcontentloaded"
+            },
+            {
+              "action": "setFieldValue",
+              "locator": { "by": "selector", "value": "#agree" },
+              "value": "true"
+            },
+            {
+              "action": "assertFieldValueEquals",
+              "locator": { "by": "selector", "value": "#agree" },
+              "value": "true"
+            },
+            {
+              "action": "setFieldValue",
+              "locator": { "by": "selector", "value": "#agree" },
+              "value": "false"
+            },
+            {
+              "action": "assertFieldValueEquals",
+              "locator": { "by": "selector", "value": "#agree" },
+              "value": "false"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Radio buttons - select and assert",
+      "steps": [
+        {
+          "description": "Select a radio button and verify",
+          "actions": [
+            {
+              "action": "navigate",
+              "url": "file:///C:/dev/json-test-runner/tests/playwright-json-runner-tests/fixtures/field-types.html"
+            },
+            {
+              "action": "waitForLoadState",
+              "state": "domcontentloaded"
+            },
+            {
+              "action": "setFieldValue",
+              "locator": { "by": "selector", "value": "#color-radios" },
+              "value": "green"
+            },
+            {
+              "action": "assertFieldValueEquals",
+              "locator": { "by": "selector", "value": "#color-radios" },
+              "value": "green"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Select dropdown - choose and assert",
+      "steps": [
+        {
+          "description": "Select an option and verify",
+          "actions": [
+            {
+              "action": "navigate",
+              "url": "file:///C:/dev/json-test-runner/tests/playwright-json-runner-tests/fixtures/field-types.html"
+            },
+            {
+              "action": "waitForLoadState",
+              "state": "domcontentloaded"
+            },
+            {
+              "action": "setFieldValue",
+              "locator": { "by": "selector", "value": "#country" },
+              "value": "Canada"
+            },
+            {
+              "action": "assertFieldValueEquals",
+              "locator": { "by": "selector", "value": "#country" },
+              "value": "Canada"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Contenteditable - type and assert",
+      "steps": [
+        {
+          "description": "Type into contenteditable and verify",
+          "actions": [
+            {
+              "action": "navigate",
+              "url": "file:///C:/dev/json-test-runner/tests/playwright-json-runner-tests/fixtures/field-types.html"
+            },
+            {
+              "action": "waitForLoadState",
+              "state": "domcontentloaded"
+            },
+            {
+              "action": "setFieldValue",
+              "locator": { "by": "testId", "value": "editor" },
+              "value": "Rich text content"
+            },
+            {
+              "action": "assertFieldValueContains",
+              "locator": { "by": "testId", "value": "editor" },
+              "value": "Rich text content"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Bootstrap dropdown - select and assert",
+      "steps": [
+        {
+          "description": "Select from bootstrap dropdown and verify",
+          "actions": [
+            {
+              "action": "navigate",
+              "url": "file:///C:/dev/json-test-runner/tests/playwright-json-runner-tests/fixtures/field-types.html"
+            },
+            {
+              "action": "waitForLoadState",
+              "state": "load"
+            },
+            {
+              "action": "setFieldValue",
+              "locator": { "by": "selector", "value": "#bs-priority" },
+              "value": "High"
+            },
+            {
+              "action": "assertFieldValueContains",
+              "locator": { "by": "selector", "value": "#bs-priority" },
+              "value": "High"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

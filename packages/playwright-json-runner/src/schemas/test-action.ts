@@ -242,6 +242,26 @@ const waitForSelectorActionSchema = withLocator.extend({
   options: timeoutOpts,
 });
 
+// ── Field value actions ─────────────────────────────────────────────────────
+
+const setFieldValueActionSchema = withLocator.extend({
+  action: z.literal("setFieldValue"),
+  value: z.string(),
+  options: timeoutOpts,
+});
+
+const assertFieldValueEqualsActionSchema = withLocator.extend({
+  action: z.literal("assertFieldValueEquals"),
+  value: z.string(),
+  options: timeoutOpts,
+});
+
+const assertFieldValueContainsActionSchema = withLocator.extend({
+  action: z.literal("assertFieldValueContains"),
+  value: z.string(),
+  options: timeoutOpts,
+});
+
 // ── Assertion actions ───────────────────────────────────────────────────────
 
 const assertVisibleSchema = withLocator.extend({
@@ -357,6 +377,9 @@ const knownActionsSchema = z.discriminatedUnion("action", [
   assertValueSchema,
   assertCountSchema,
   assertAttributeSchema,
+  setFieldValueActionSchema,
+  assertFieldValueEqualsActionSchema,
+  assertFieldValueContainsActionSchema,
 ]);
 
 export const testActionSchema = z.union([knownActionsSchema, customActionSchema]);

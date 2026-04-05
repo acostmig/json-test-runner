@@ -2,6 +2,9 @@ import { cosmiconfigSync } from "cosmiconfig";
 import path from "path";
 import { Locator, Page } from "playwright";
 import actionTypeHandlers from "./defaults/action-type-handlers";
+import getterSetterRules from "./defaults/getter-setter-rules";
+import getterStrategies from "./defaults/getter-strategies";
+import setterStrategies from "./defaults/setter-strategies";
 import locatorStrategies from "./defaults/locator-strategies";
 import { TestAction } from "./schemas/test-action";
 import { LocatorStrategies } from "./locator-resolver";
@@ -12,6 +15,28 @@ export interface ActionContext {
 }
 
 export type ActionTypeHandler = (context: ActionContext, action: TestAction) => Promise<void>;
+
+export interface ConditionParams {
+  document: Document;
+  element: Element;
+  xpathEval: (xpath: string) => boolean;
+}
+
+export interface RuleMatch {
+  id: string;
+  xpath?: string;
+  matchedChild: boolean;
+}
+
+export interface StrategyParam {
+  locator: Locator;
+  ruleMatch: RuleMatch;
+  value?: string;
+}
+
+export type RuleType = (params: ConditionParams) => boolean;
+export type SetterStrategyType = (param: StrategyParam) => Promise<void>;
+export type GetterStrategyType = (param: StrategyParam) => Promise<string | null>;
 
 export interface Configuration<TActionType extends string = string> {
   /**
@@ -68,6 +93,25 @@ export interface Configuration<TActionType extends string = string> {
    * ```
    */
   actionTypeHandlers: Record<TActionType, ActionTypeHandler>;
+  /**
+   * Rules that determine which getter/setter strategy applies to a given element.
+   * Each rule receives the element's HTML and returns true if its strategy should be used.
+   * Order matters — the first matching rule wins.
+   *
+   * `xpathEval` runs an XPath query within the element's context, allowing you to
+   * match on child elements (e.g. a `<select>` or `<input>` inside a wrapper `<div>`).
+   */
+  rules: Record<string, RuleType>;
+  /**
+   * Strategies for **setting** a field value. Keyed by rule name.
+   * Called by `setLocatorValue` when the matching rule fires.
+   */
+  setterStrategies: Record<string, SetterStrategyType>;
+  /**
+   * Strategies for **getting** a field value. Keyed by rule name.
+   * Called by `getLocatorValue` when the matching rule fires.
+   */
+  getterStrategies: Record<string, GetterStrategyType>;
 }
 
 export const baseConfig: Configuration = {
@@ -76,6 +120,9 @@ export const baseConfig: Configuration = {
   jsonTestMatch: `**/*.playwright.json`,
   locatorStrategies,
   actionTypeHandlers,
+  rules: getterSetterRules,
+  setterStrategies,
+  getterStrategies,
 };
 
 /**
@@ -109,6 +156,18 @@ export function extendConfig<TActionType extends string = string>(
     actionTypeHandlers: {
       ...(baseConfig.actionTypeHandlers as Record<TActionType, ActionTypeHandler>),
       ...(extensions.actionTypeHandlers ?? {}),
+    },
+    rules: {
+      ...baseConfig.rules,
+      ...(extensions.rules ?? {}),
+    },
+    setterStrategies: {
+      ...baseConfig.setterStrategies,
+      ...(extensions.setterStrategies ?? {}),
+    },
+    getterStrategies: {
+      ...baseConfig.getterStrategies,
+      ...(extensions.getterStrategies ?? {}),
     },
   };
 }
