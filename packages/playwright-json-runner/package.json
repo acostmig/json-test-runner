@@ -1,6 +1,6 @@
 {
   "name": "playwright-json-runner",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Extends Playwright to run tests using JSON-based test definitions.",
   "module": "dist/index.js",
   "repository": {

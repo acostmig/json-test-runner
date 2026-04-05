@@ -9,7 +9,7 @@
  */
 
 import * as fs from "fs";
-import { testRunSchema } from "src/schemas/test-run";
+import { testRunSchema } from "../schemas/test-run";
 import zodToJsonSchema from "zod-to-json-schema";
 
 function dumpSchema() {
