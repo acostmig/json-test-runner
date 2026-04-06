@@ -112,6 +112,12 @@ export interface Configuration<TActionType extends string = string> {
    * Called by `getLocatorValue` when the matching rule fires.
    */
   getterStrategies: Record<string, GetterStrategyType>;
+  /**
+   * Default timeout in milliseconds for `setFieldValue` / `assertFieldValue*`
+   * actions to wait for the element to be attached before reading its HTML.
+   * Defaults to `10_000` (10 seconds).
+   */
+  fieldValueTimeout: number;
 }
 
 export const baseConfig: Configuration = {
@@ -123,6 +129,7 @@ export const baseConfig: Configuration = {
   rules: getterSetterRules,
   setterStrategies,
   getterStrategies,
+  fieldValueTimeout: 10_000,
 };
 
 /**

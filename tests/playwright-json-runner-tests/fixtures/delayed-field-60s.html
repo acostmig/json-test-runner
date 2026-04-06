@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Delayed Field Test Page (60s)</title>
+</head>
+<body>
+  <h1>Delayed Field Test (60s)</h1>
+  <p>The input below appears after 60 seconds.</p>
+
+  <div id="container"></div>
+
+  <script>
+    setTimeout(() => {
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.id = 'delayed-input';
+      input.placeholder = 'I appeared very late';
+      document.getElementById('container').appendChild(input);
+    }, 60000);
+  </script>
+</body>
+</html>

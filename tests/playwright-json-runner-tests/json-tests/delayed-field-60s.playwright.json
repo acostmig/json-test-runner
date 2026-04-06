@@ -1,0 +1,28 @@
+{
+  "host": "file:///C:/dev/json-test-runner/tests/playwright-json-runner-tests/fixtures/delayed-field-60s.html",
+  "scenarios": [
+    {
+      "name": "setFieldValue times out for 60s delayed element",
+      "steps": [
+        {
+          "description": "Set value on an input that appears after 60 seconds - should timeout",
+          "actions": [
+            {
+              "action": "navigate",
+              "url": "file:///C:/dev/json-test-runner/tests/playwright-json-runner-tests/fixtures/delayed-field-60s.html"
+            },
+            {
+              "action": "waitForLoadState",
+              "state": "domcontentloaded"
+            },
+            {
+              "action": "setFieldValue",
+              "locator": { "by": "selector", "value": "#delayed-input" },
+              "value": "should timeout"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

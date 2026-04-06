@@ -5,9 +5,11 @@ import { getConfiguration, RuleMatch, Configuration } from "./config";
 /**
  * Sets a field value using the first matching rule's setter strategy.
  */
-export async function setLocatorValue(locator: Locator, value: string | undefined): Promise<void> {
-  const html = await locator.evaluate((el) => el.outerHTML);
+export async function setLocatorValue(locator: Locator, value: string | undefined, options?: { timeout?: number }): Promise<void> {
   const config = getConfiguration();
+  const timeout = options?.timeout ?? config.fieldValueTimeout;
+  await locator.waitFor({ state: "attached", timeout });
+  const html = await locator.evaluate((el) => el.outerHTML);
   const ruleMatch = getRuleMatch(html, config);
 
   if (ruleMatch && config.setterStrategies[ruleMatch.id]) {
@@ -22,9 +24,11 @@ export async function setLocatorValue(locator: Locator, value: string | undefine
 /**
  * Gets a field value using the first matching rule's getter strategy.
  */
-export async function getLocatorValue(locator: Locator): Promise<string | null> {
-  const html = await locator.evaluate((el) => el.outerHTML);
+export async function getLocatorValue(locator: Locator, options?: { timeout?: number }): Promise<string | null> {
   const config = getConfiguration();
+  const timeout = options?.timeout ?? config.fieldValueTimeout;
+  await locator.waitFor({ state: "attached", timeout });
+  const html = await locator.evaluate((el) => el.outerHTML);
   const ruleMatch = getRuleMatch(html, config);
 
   if (ruleMatch && config.getterStrategies[ruleMatch.id]) {
