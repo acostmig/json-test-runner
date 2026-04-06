@@ -177,20 +177,20 @@ const actionTypeHandlers: Record<string, ActionTypeHandler> = {
   setFieldValue: async (context, action: TestAction) => {
     const locator = requireLocator(context, "setFieldValue");
     const a = action as any;
-    await setLocatorValue(locator, a.value);
+    await setLocatorValue(locator, a.value, a.options);
   },
 
   assertFieldValueEquals: async (context, action: TestAction) => {
     const locator = requireLocator(context, "assertFieldValueEquals");
     const a = action as any;
-    const actual = await getLocatorValue(locator);
+    const actual = await getLocatorValue(locator, a.options);
     expect(actual).toBe(a.value);
   },
 
   assertFieldValueContains: async (context, action: TestAction) => {
     const locator = requireLocator(context, "assertFieldValueContains");
     const a = action as any;
-    const actual = await getLocatorValue(locator);
+    const actual = await getLocatorValue(locator, a.options);
     expect(actual).toContain(a.value);
   },
 

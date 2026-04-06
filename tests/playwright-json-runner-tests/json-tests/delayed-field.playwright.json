@@ -1,0 +1,33 @@
+{
+  "host": "file:///C:/dev/json-test-runner/tests/playwright-json-runner-tests/fixtures/delayed-field.html",
+  "scenarios": [
+    {
+      "name": "setFieldValue waits for delayed element",
+      "steps": [
+        {
+          "description": "Set value on an input that appears after 2 seconds",
+          "actions": [
+            {
+              "action": "navigate",
+              "url": "file:///C:/dev/json-test-runner/tests/playwright-json-runner-tests/fixtures/delayed-field.html"
+            },
+            {
+              "action": "waitForLoadState",
+              "state": "domcontentloaded"
+            },
+            {
+              "action": "setFieldValue",
+              "locator": { "by": "selector", "value": "#delayed-input" },
+              "value": "hello delayed"
+            },
+            {
+              "action": "assertFieldValueEquals",
+              "locator": { "by": "selector", "value": "#delayed-input" },
+              "value": "hello delayed"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
