@@ -180,6 +180,34 @@
       ]
     },
     {
+      "name": "Select dropdown - choose by value attribute",
+      "steps": [
+        {
+          "description": "Select an option using the value attribute and verify",
+          "actions": [
+            {
+              "action": "navigate",
+              "url": "file:///C:/dev/json-test-runner/tests/playwright-json-runner-tests/fixtures/field-types.html"
+            },
+            {
+              "action": "waitForLoadState",
+              "state": "domcontentloaded"
+            },
+            {
+              "action": "setFieldValue",
+              "locator": { "by": "selector", "value": "#country" },
+              "value": "ca"
+            },
+            {
+              "action": "assertFieldValueEquals",
+              "locator": { "by": "selector", "value": "#country" },
+              "value": "Canada"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "name": "Bootstrap dropdown - select and assert",
       "steps": [
         {
@@ -202,6 +230,34 @@
               "action": "assertFieldValueContains",
               "locator": { "by": "selector", "value": "#bs-priority" },
               "value": "High"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Bootstrap dropdown - select by data-value",
+      "steps": [
+        {
+          "description": "Select from bootstrap dropdown using data-value attribute",
+          "actions": [
+            {
+              "action": "navigate",
+              "url": "file:///C:/dev/json-test-runner/tests/playwright-json-runner-tests/fixtures/field-types.html"
+            },
+            {
+              "action": "waitForLoadState",
+              "state": "load"
+            },
+            {
+              "action": "setFieldValue",
+              "locator": { "by": "selector", "value": "#bs-priority" },
+              "value": "medium"
+            },
+            {
+              "action": "assertFieldValueContains",
+              "locator": { "by": "selector", "value": "#bs-priority" },
+              "value": "Medium"
             }
           ]
         }

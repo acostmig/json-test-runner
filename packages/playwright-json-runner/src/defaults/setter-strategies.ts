@@ -25,12 +25,23 @@ const setterStrategies: Record<string, SetterStrategyType> = {
       ".dropdown-toggle, [data-bs-toggle='dropdown'], [data-toggle='dropdown']"
     );
     await toggle.click();
-    // Click the matching option from the dropdown menu
+    // Click the matching option from the dropdown menu — try by value first, then by text
     const menu = locator.locator(".dropdown-menu");
-    await menu.locator(".dropdown-item", { hasText: value }).click();
+    const byValue = menu.locator(`.dropdown-item[data-value="${value}"]`);
+    if ((await byValue.count()) > 0) {
+      await byValue.first().click();
+    } else {
+      await menu.locator(".dropdown-item", { hasText: value }).click();
+    }
   },
   select: async ({ locator, value }) => {
-    await locator.selectOption({ label: value });
+    // Try matching by option value first, then fall back to label (visible text)
+    const byValue = locator.locator(`option[value="${value}"]`);
+    if ((await byValue.count()) > 0) {
+      await locator.selectOption({ value });
+    } else {
+      await locator.selectOption({ label: value });
+    }
   },
   text: async ({ locator, value }) => {
     await locator.fill(value ?? "");
